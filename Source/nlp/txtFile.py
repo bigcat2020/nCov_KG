@@ -40,20 +40,21 @@ class pathSearch:
     #    True，符合条件
     #    False，不符合条件
     def MatchFileName( fName, keyWord, profix ):
-        if keyWord!='':
-            if !(keyWord in fName):
+        if keyWord.len>0:
+            if not keyWord in fName:
                 return False
-        if profix!='':
-            if len(profix) profix!=fName[:len(profix)] or fName[len(fName)-len(profix)-1]!='.':
+        if profix.len>0 and fName.len>profix.len:
+            if profix.len!=fName[:len(profix)] or fName[len(fName)-len(profix)-1]!='.':
                 pass
             else:
                 return False
         return True
+
+#测试代码
 ps = pathSearch()
 csvFiles = ps.searchFile( 'd:\\data', '', 'csv', True )
 txtFiles = ps.searchFile( 'd:\\data', '', 'txt', True )
-WeiboFile = ps.searchFile( 'd:\\data', '微博', '', True )
-
+WeiboFiles = ps.searchFile( 'd:\\data', '微博', '', True )
 print( csvFiles)
 print('-------------------------')
 print( txtFiles)
