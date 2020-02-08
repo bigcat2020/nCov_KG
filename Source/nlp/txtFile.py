@@ -3,6 +3,30 @@ import os
 
 #目录搜索类
 class pathSearch:
+    #判断文件名是否符合条件
+    #参数：
+    #   fName，要判断的文件名
+    #   keyWord，关键词
+    #   profix，文件后缀
+    #返回值：
+    #    True，符合条件
+    #    False，不符合条件
+    def matchFileName( self, fName, keyWord, profix ):
+        print( 'Match in' + fName + ' , ' + keyWord.len + ' , ' + profix.len )
+        if keyWord.length>0:
+            if not keyWord in fName:
+                print('不符合 ' + keyWord + '  ' + fName )
+                return False
+        if profix.length>0:
+            if fName.length<=profix.length:
+                return False
+            print( profix + '   ' + fName + ' :: ' + fName[:profix.length] + '::' +  fName[fName.length-profix.length-1])
+            if profix.length!=fName[:length(profix)] or fName[fName.length-profix.length-1]!='.':
+                pass # do nothing
+            else:
+                return F
+        return True
+
     #搜索目录下的文件
     #参数：
     #  workPath，str，路径名，不能为空，最后不用加'\'
@@ -18,37 +42,23 @@ class pathSearch:
         
         fileList = []
         try:
-            dirs = os.listdir( workPath )      
+            dirs = os.listdir( workPath ) 
             for f in dirs:
                 fPath = workPath + '\\' + f
                 if os.path.isdir( fPath ):
                     if isSubDir:
-                        fileList.append( searchFile( fPath, keyWord, profix, isSubDir ) )
+                        subDir = self.searchFile( fPath, keyWord, profix, isSubDir )
+                        if subDir!=[]:
+                            fileList.append(subDir)
                 else:
-                    if MatchFileName( f, keyWord, profix ):
+                    print( 'Match out' + f + ' , ' + keyWord.length + ' , ' + profix.length )
+                    if self.matchFileName( f, keyWord, profix ):
+                        print('matched ' + f)
                         fileList.append( fPath )
         except:
             return []
         return fileList
-    
-    #判断文件名是否符合条件
-    #参数：
-    #   fName，要判断的文件名
-    #   keyWord，关键词
-    #   profix，文件后缀
-    #返回值：
-    #    True，符合条件
-    #    False，不符合条件
-    def MatchFileName( fName, keyWord, profix ):
-        if keyWord.len>0:
-            if not keyWord in fName:
-                return False
-        if profix.len>0 and fName.len>profix.len:
-            if profix.len!=fName[:len(profix)] or fName[len(fName)-len(profix)-1]!='.':
-                pass
-            else:
-                return False
-        return True
+
 
 #测试代码
 ps = pathSearch()
