@@ -8,7 +8,7 @@ import os
 from selenium import webdriver
 from time import sleep
 from bs4 import BeautifulSoup
-from goto import with_goto
+from goto import with_goto  #要杜绝goto语句 -yemao
 
 
 class Downloader():
@@ -26,10 +26,10 @@ class Downloader():
 	def find_model(self):
 
 		#1.创建Chrome浏览器对象，这会在电脑上在打开一个浏览器窗口
-		browser = webdriver.Firefox(executable_path = "D:\webdriver\geckodriver")
+		browser = webdriver.Firefox(executable_path = "D:\webdriver\geckodriver")  #程序路径可作为命令行参数输入，这样不同的电脑上都能用 -yemao
 		#2.通过浏览器向服务器发送URL请求
 		browser.get(self.main_url + self.model_target)
-		sleep(2)
+		sleep(2) #sleep时间也不要硬编码，定义为一个常量，便于成语维护 -yemao
 		request = browser.execute_script("return document.documentElement.outerHTML")
 		h3_bf = BeautifulSoup(request,'lxml')
 		h3 = h3_bf.find_all('h3',class_='jkxdtit')
