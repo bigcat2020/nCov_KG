@@ -12,19 +12,14 @@ class pathSearch:
     #    True，符合条件
     #    False，不符合条件
     def matchFileName( self, fName, keyWord, profix ):
-        print( 'Match in' + fName + ' , ' + keyWord.len + ' , ' + profix.len )
-        if keyWord.length>0:
+        if len(keyWord)>0:
             if not keyWord in fName:
-                print('不符合 ' + keyWord + '  ' + fName )
                 return False
-        if profix.length>0:
-            if fName.length<=profix.length:
+        if len(profix)>0:
+            if len(fName)<=len(profix):
                 return False
-            print( profix + '   ' + fName + ' :: ' + fName[:profix.length] + '::' +  fName[fName.length-profix.length-1])
-            if profix.length!=fName[:length(profix)] or fName[fName.length-profix.length-1]!='.':
-                pass # do nothing
-            else:
-                return F
+            if profix!=fName[-len(profix)-1:]!='.'+profix:
+                return False
         return True
 
     #搜索目录下的文件
@@ -49,12 +44,10 @@ class pathSearch:
                     if isSubDir:
                         subDir = self.searchFile( fPath, keyWord, profix, isSubDir )
                         if subDir!=[]:
-                            fileList.append(subDir)
+                            fileList = fileList + subDir
                 else:
-                    print( 'Match out' + f + ' , ' + keyWord.length + ' , ' + profix.length )
                     if self.matchFileName( f, keyWord, profix ):
-                        print('matched ' + f)
-                        fileList.append( fPath )
+                        fileList.append(fPath)
         except:
             return []
         return fileList
@@ -64,9 +57,10 @@ class pathSearch:
 ps = pathSearch()
 csvFiles = ps.searchFile( 'd:\\data', '', 'csv', True )
 txtFiles = ps.searchFile( 'd:\\data', '', 'txt', True )
-WeiboFiles = ps.searchFile( 'd:\\data', '微博', '', True )
+WeiboFiles = ps.searchFile( 'd:\\data', '广东', 'txt', True )
+print('CSV file ', len(csvFiles), '-------------------------')
 print( csvFiles)
-print('-------------------------')
+print('txt file ', len(txtFiles), '-------------------------')
 print( txtFiles)
-print('-------------------------')
+print('keyword 广东', len(WeiboFiles), '-------------------------')
 print( WeiboFiles)
