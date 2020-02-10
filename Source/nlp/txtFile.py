@@ -5,12 +5,12 @@ import os
 class pathSearch:
     #判断文件名是否符合条件
     #参数：
-    #   fName，要判断的文件名
-    #   keyWord，关键词
-    #   profix，文件后缀
+    #  fName，要判断的文件名
+    #  keyWord，关键词
+    #  profix，文件后缀
     #返回值：
-    #    True，符合条件
-    #    False，不符合条件
+    #  True，文件名匹配
+    #  False，文件名不匹配
     def matchFileName( self, fName, keyWord, profix ):
         if len(keyWord)>0:
             if not keyWord in fName:
@@ -52,15 +52,35 @@ class pathSearch:
             return []
         return fileList
 
+#纯文本文件处理类
+class txtFile:
+    content = ''
+    #加载一个文本文件
+    def load( fName ):
+        with f=open(fName, 'r', encoding='utf-8'):
+            content = f.read()
+        return null
+    
+    #清理
+    def clean( stopwords ):
+        return
+
+#csv文件处理类
+class csvFile:
+    def load( fName ):
+        return
+    
+    def clean( stopwords ):
+        return
 
 #测试代码
-ps = pathSearch()
-csvFiles = ps.searchFile( 'd:\\data', '', 'csv', True )
-txtFiles = ps.searchFile( 'd:\\data', '', 'txt', True )
-WeiboFiles = ps.searchFile( 'd:\\data', '广东', 'txt', True )
-print('CSV file ', len(csvFiles), '-------------------------')
-print( csvFiles)
-print('txt file ', len(txtFiles), '-------------------------')
-print( txtFiles)
-print('keyword 广东', len(WeiboFiles), '-------------------------')
-print( WeiboFiles)
+# ps = pathSearch()
+# csvFiles = ps.searchFile( 'd:\\data', '', 'csv', True )
+# txtFiles = ps.searchFile( 'd:\\data', '', 'txt', True )
+# WeiboFiles = ps.searchFile( 'd:\\data', '广东', 'txt', True )
+# print('CSV file ', len(csvFiles), '-------------------------')
+# print( csvFiles)
+# print('txt file ', len(txtFiles), '-------------------------')
+# print( txtFiles)
+# print('keyword 广东', len(WeiboFiles), '-------------------------')
+# print( WeiboFiles)
