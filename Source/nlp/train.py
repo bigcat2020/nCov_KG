@@ -1,8 +1,4 @@
-#训练CRF模型
-
-from itertools import chain
-from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.preprocessing import LabelBinarizer
+# -*- coding: utf-8 -*-
 import sklearn
 import pycrfsuite
 import jieba.posseg as posg
@@ -50,6 +46,50 @@ class TrainFormat:
                     self.cutSegment(res_line)
                     res.append(res_line)
                     res_line=list()
+        return res
+
+    def get_type_encode(self, text):
+        if text.__contains__('PRO'):
+            return 'product_name'
+        elif text.__contains__('PER'):
+            return 'person_name'
+        elif text.__contains__('TIM'):
+            return 'time'
+        elif text.__contains__('ORG'):
+            return 'org_name'
+        elif text.__contains__('LOC'):
+            return 'location'
+        else:
+            return 'unknown'
+    
+    # 将句子切分为一个一个的字，用于输入实体识别
+    def split_by_words(self, sentence):
+        res=list()
+        for word in sentence:
+            res.append([word,'','',''])
+        self.cutSegment(res)
+        return res
+
+    # 输出按boson语料的格式规范化后的命名实体标记
+    def format_boson_data_encode(self, text, tag ):
+        res=""
+        status=0
+        for i in range(len(text)):
+            if status == 0 and tag[i] == 'O':
+                res += text[i]
+            elif status == 0 and tag[i] != 'O':
+                status = 1
+                res += "{{" + self.get_type_encode(tag[i]) + ":" + text[i]
+            elif status == 1 and str(tag[i]).startswith('I'):
+                res += text[i]
+            elif status == 1:
+                res += "}}"
+                if tag[i] == 'O':
+                    status = 0
+                    res += text[i]
+                else:
+                    status = 1
+                    res += "{{" + self.get_type_encode(tag[i]) + ":" + text[i]
         return res
 
 #CRF训练类
@@ -142,7 +182,28 @@ class CRFTrainee:
             'feature.possible_transitions': True
         })
         trainer.train(self.__model_name)
+    
+    def ner( self, text ):
+        format = TrainFormat()
+        tagger = pycrfsuite.Tagger()
+        tagger.open(self.__model_name)
+        sent=format.split_by_words(text)
+        tag_result=tagger.tag(self.sent2features(sent))
+        text_result=format.format_boson_data_encode(text,tag_result)
+        return text_result
 
+    #测试训练结果
+    def test( self, inputFile, outputFile ):
+        input_file=open(inputFile,'r',encoding='utf-8')
+        result=self.ner(input_file.read())
+        output_file= open(outputFile,'w',encoding='utf-8')
+        try:
+            output_file.write(result)
+        finally:
+            output_file.close()
+
+#测试代码
 trainer = CRFTrainee()
-trainer.loadTrainFiles('example.train', 'example.test')
-trainer.train()
+#trainer.loadTrainFiles('example.train', 'example.test')
+#trainer.train()
+trainer.test( './abc.txt', './output1.txt' )
