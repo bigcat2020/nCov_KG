@@ -4,14 +4,21 @@ from pyecharts import options as opts
 from pyecharts.charts import Geo,Map
 from pyecharts.globals import ChartType, SymbolType
 from pyecharts.globals import ThemeType
-import json
 
-# city_names = list()
-# with open( 'd:\\data\\cities.json','r',encoding='utf-8' ) as f:
-#     citydict = json.load( f )
-#     cities = citydict['PINYIN_MAP']
-#     for (city, pinyin) in cities.items():
-#         city_names.append(city)
+import json
+lines=list()
+with open( 'd:\\data\\city1.json','r',encoding='utf-8' ) as f:
+   citylist = json.load( f )
+   line = list()
+   for id, province in citylist.items():
+       for cd in province:
+            line = cd['province'] + ',' + cd['name'] + ',' + cd['id']+'\n'
+            lines.append( line )
+if len(lines)>0:
+    with open( 'd:\\data\\output.csv', 'w', encoding='utf-8') as f:
+        f.writelines( lines )
+exit()
+
 
 # data = pd.read_csv('d:\\data\\data.csv')
 # with open( 'd:\\data\\data1.csv', 'w', encoding='utf-8') as f:

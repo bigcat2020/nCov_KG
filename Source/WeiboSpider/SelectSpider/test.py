@@ -59,7 +59,7 @@ class WeiSpider:
             print("=" * 50 + "获取网页中" + "=" * 50 + "\n\n\n")
             for i in range(1, self.page + 1):
                 print("正在获取关键字:" + self.word + "第" + str(i) + "页微博\n\n")
-                url = "https://weibo.cn/search/mblog?hideSearchFrame=&keyword=" + self.word + "&page=" + str(i)
+                url = "https://weibo.cn/search/mblog?hideSearchFrame=&keyword=" + self.word + "&page=" + str(i) + "&sort=time"
                 soup = self.get_soup(url)
                 self.writer_soup(soup)
                 time.sleep(1)

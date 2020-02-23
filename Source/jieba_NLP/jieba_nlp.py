@@ -43,13 +43,15 @@ class Nlp:
         :return:
         """
         filename = self.path+filename
+
+         
         with open(filename, "rb") as f:
             result = list(posg.cut(f.read()))  # 取一次就没了
             # txt
             with open(filename[:-4:]+"nlp.txt", "ab") as outtxt:
                 temp = ""
                 for i, j in result:
-                    print(i + "\t" + j)
+                    #print(i + "\t" + j)
                     if j == "m" and temp != "x":
                         outtxt.write((i + '\t' + "q" + '\n').encode("utf-8"))
                     else:
@@ -61,7 +63,7 @@ class Nlp:
                 csv_write = csv.writer(outcsv)
                 temp = ""
                 for i, j in result:
-                    print(i + "," + j)
+                    #print(i + "," + j)
                     if j == "m" and temp != "x":
                         csv_write.writerow([i, "q"])
                     else:
@@ -81,7 +83,7 @@ class Nlp:
 
 
 def main():
-    nlp = Nlp("C:/Users/lenovo/Desktop/微博信息提取汇总/")
+    nlp = Nlp("d:\\data\\Weibo\\")
     nlp.run_nlp()
 
 
