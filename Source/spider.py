@@ -8,17 +8,33 @@ import time
 class getContents():
     def __init__(self, filename):
         self.filename = filename
-        self.data1 = pd.read_csv(self.filename, usecols=['来源链接1'], encoding='utf-8', index_col=0, header=0)
-        self.data2 = pd.read_csv(self.filename, usecols=['消息来源'], encoding='utf-8', index_col=0, header=0)
+        self.urls = pd.read_csv(self.filename, usecols=['来源链接1'], encoding='utf-8', index_col=0, header=0)
+        #self.data2 = pd.read_csv(self.filename, usecols=['消息来源'], encoding='utf-8', index_col=0, header=0)
+        self.readurls = list()
+        try:
+            with open('..\\data\\readurls.txt', 'r', encoding='utf-8') as f:
+                self.readurls = f.readlines()
+        except:
+            urlfile = open('..\\data\\readurls.txt', 'w', encoding='utf-8')
+            urlfile.write(' ')
+            urlfile.close()
+
         self.htmltxt = ''
         self.sanyuan = []
         self.laiyuan = ''
         self.times = ''
 
     def getConn(self):
-        for i in range(1, self.data1.shape[0]):
-            url = self.data1.index[i-1]
-            self.laiyuan = self.data2.index[i-1]
+        for i in range(1, self.urls.shape[0]):
+            url = self.urls.index[i-1]
+            if pd.isnull( url ):
+                continue
+            url = url.strip()
+            #已读取的url
+            if url in self.readurls:
+                continue
+            self.readurls.append(url)
+            self.laiyuan = url
             try:
                 kv = {'user-agent': 'Mozilla/5.0'}
                 r = requests.get(url, headers=kv)
@@ -64,11 +80,12 @@ class getContents():
                 self.times = "未知"
             self.sanyuan = [[[self.laiyuan], [self.times], [s]]]
             print( self.laiyuan, self.times )
-            #print(self.laiyuan, self.times, s)
+            urlline = pd.DataFrame([[url]])
+            urlline.to_csv('..\\data\\readurls.txt', index=False, header=False, mode='a+')
             file = pd.DataFrame(self.sanyuan)
-            file.to_csv('out.csv', index=False, header=False, mode='a+')
+            file.to_csv('..\\data\\webOutput.csv', index=False, header=False, mode='a+')
 
 
 if __name__ == '__main__':
-    address = getContents('Updates_NC.csv')
+    address = getContents('..\\data\\Updates_NC.csv')
     print(address.getConn())
