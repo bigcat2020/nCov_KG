@@ -1,5 +1,70 @@
 #文本文档处理模块
 import os
+import jieba.analyse
+import jieba.posseg
+import jieba
+
+#文本预处理
+class txtPreProcess:
+    #构造函数，加载库文件
+    def __init__(self):
+        return
+    
+    #文本预处理
+    # 去掉中英文状态下的逗号、句号、空格等
+    def preProcess(self, txt ):
+        txt = txt.strip()
+        txt = txt.replace(' ', '')
+        txt = txt.replace('、', '')
+        txt = txt.replace('，', '。')
+        txt = txt.replace('《', '。')
+        txt = txt.replace('》', '。')
+        txt = txt.replace('～', '')
+        txt = txt.replace('…', '')
+        txt = txt.replace('\r', '')
+        txt = txt.replace('\t', ' ')
+        txt = txt.replace('\f', ' ')
+        txt = txt.replace('/', '')
+        txt = txt.replace('、', ' ')
+        txt = txt.replace('/', '')
+        txt = txt.replace('。', '')
+        txt = txt.replace('（', '')
+        txt = txt.replace('）', '')
+        txt = txt.replace('_', '')
+        txt = txt.replace('?', ' ')
+        txt = txt.replace('？', ' ')
+        txt = txt.replace('了', '')
+        txt = txt.replace('➕', '')
+        txt = txt.replace('：', '')
+        return txt
+
+#结巴分词类
+class jiebaFenci:
+    __userDict
+    __stopWords
+    def setUserDict( self, userDictFile ):
+        self.__userDict = userDictFile
+        try:
+            jieba.load_userdict(dictFile)
+        except:
+            return False
+        return True     
+
+    def setStopWord( self, stopWordsFile ):
+        self.__stopWords = stopWordsFile
+        try:
+            jieba.analyse.set_stop_words(stopWordsFile)
+        except:
+            return False
+        return True
+    
+    #单纯分词
+    def cut( self, txt ):
+        return jieba.cut( txt )
+    
+    #分词并标注词性，返回值是generator，（word, flag）
+    def getWordType( self, txt ):
+        return jieba.posseg.cut( txt )
 
 #目录搜索类
 class pathSearch:
@@ -72,6 +137,8 @@ class csvFile:
     
     def clean( stopwords ):
         return
+
+
 
 #测试代码
 # ps = pathSearch()

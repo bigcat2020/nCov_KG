@@ -4,7 +4,7 @@ import os
 from selenium import webdriver
 from time import sleep
 from bs4 import BeautifulSoup
-#from goto import with_goto 杜绝goto语句
+from goto import with_goto
 
 #定义类
 class downloader():

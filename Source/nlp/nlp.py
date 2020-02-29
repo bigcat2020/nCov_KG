@@ -8,6 +8,7 @@
 #创建文件 2020-2-8，叶茂
 
 from txtFile import pathSearch, txtFile, csvFile
+from ner import
 
 #知识图谱自然语言处理库
 class ChineseNLP:
@@ -30,8 +31,17 @@ class ChineseNLP:
     def cleanTxt( txt ):
         return
     
+<<<<<<< HEAD
+    #读取句子和
+    def ner( txt ):
+        return
+    
+    #从一段文本中分出句子列表
+    def getSentenses( txt ):
+=======
     #从一段文本中分出句子列表
     def getSentense( txt ):
+>>>>>>> 3900a70a469a8098cc0eb3d8009b2ee9f5943f99
         return
     
 
