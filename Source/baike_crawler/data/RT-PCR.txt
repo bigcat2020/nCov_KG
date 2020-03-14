@@ -1,0 +1,2 @@
+逆转录PCR（reverse transcription PCR）或者称反转录PCR（reverse transcription-PCR, RT-PCR），是聚合酶链式反应（PCR）的一种广泛应用的变形。在RT-PCR中，一条RNA链被逆转录成为互补DNA，再以此为模板通过PCR进行DNA扩增。
+基本信息：

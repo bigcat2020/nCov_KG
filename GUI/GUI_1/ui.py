@@ -89,6 +89,6 @@ class GUI(tk.Tk):
 
 if __name__ == '__main__':
 	cef.Initialize()
-	GUI("event_graph/travel_event_graph.html")
+	GUI("127.0.0.1:7474")
 	cef.Shutdown()
 
