@@ -66,7 +66,15 @@ class NlpLtp():
 
     #def role_label(self, wordlist, postags, arcs):
     #    return self.labeller.label(wordlist, postags, arcs)
-    
+    def get_keywords(self, txt):
+        words = pltobj.segment( txt )
+        postags = pltobj.postag( words )
+        ners = pltobj.ner( words, postags )
+        keywords = list()
+        for k, val in ners.items():
+            keywords.append(k)
+        return keywords
+            
     def add_entity(self, word, tag):
         if word in self.nerdict:
             count = self.nerdict[word][1]
@@ -99,10 +107,12 @@ class NlpLtp():
         return self.nerdict
 
 def test_plt( pltobj, s ):
-    words = pltobj.segment( s )
-    postags = pltobj.postag( words )
-    ners = pltobj.ner( words, postags )
-    print( '实体识别结果：', ners )
+    #words = pltobj.segment( s )
+    #postags = pltobj.postag( words )
+    #ners = pltobj.ner( words, postags )
+
+    ll = pltobj.get_keywords( s )
+    print( '实体识别结果：', ll )
     #print(ners)
     #return
     #arcs = plt.parse(words, postags)
