@@ -590,6 +590,34 @@ class CKnowledgeGraph():
 #json_list=[ 'character-covid-19-v0.21.json']#,'event-covid-19-v0.2.json']
 #json_list=['event-covid-19-v0.2.json']
 #json_list=['xinguan_schema_list.json']
+
+def clear_node( txt ):
+    txt = txt.strip()
+    txt = txt.replace('《','')
+    txt = txt.replace('》','')
+    txt = txt.replace('、','')
+    txt = txt.replace('，','')
+    txt = txt.replace('：','')
+    txt = txt.replace('。','')
+    txt = txt.replace('“','')
+    txt = txt.replace('”','')
+    txt = txt.replace(' ','')
+    return txt
+
+def load_nodes( csvfile ):
+    nodes = list()
+    with open(csvfile, 'r', encoding='utf8') as f:
+        rows = csv.reader(f)
+        for line in rows:
+            nodename = clear_node(line[1])
+            nodes.append( nodename+'\n' )
+    if(len(nodes)>0):
+        with open('nodes.csv', 'w', encoding='utf8') as f:
+            f.writelines(nodes)
+
+load_nodes('../../data/csv/nodes.csv')
+exit(0)
+
 json_list=['character-covid-19-v0.21.json','event-covid-19-v0.2.json','medical-covid-19-v0.2.json']
 
 PATH_NAME = '../../data/json/'
