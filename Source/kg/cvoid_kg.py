@@ -526,6 +526,8 @@ class CKnowledgeGraph():
         txt = txt.replace('"',' ')
         txt = txt.replace('(','（')
         txt = txt.replace(')','）')
+        txt = txt.replace('“','（')
+        txt = txt.replace('”','）')
         return txt
 
     #保存到csv文件，逗号分隔，utf-8编码
