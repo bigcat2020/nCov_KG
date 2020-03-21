@@ -65,5 +65,5 @@ print(get_patients(up, localname='广元市', lastday='3月5日'))
 print(get_patients(up, localname='四川', lastday='3月5日'))
 ret = get_patients(up, localname='中国', lastday='3月15日')
 num = ret['新增确诊'] - ret['新增出院'] - ret['新增死亡']
-print(num[:].sum())
+print(int(num[:].sum()))
 
