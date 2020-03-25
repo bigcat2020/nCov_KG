@@ -67,9 +67,9 @@ class NlpLtp():
     #def role_label(self, wordlist, postags, arcs):
     #    return self.labeller.label(wordlist, postags, arcs)
     def get_keywords(self, txt):
-        words = pltobj.segment( txt )
-        postags = pltobj.postag( words )
-        ners = pltobj.ner( words, postags )
+        words = self.segment( txt )
+        postags = self.postag( words )
+        ners = self.ner( words, postags )
         keywords = list()
         for k, val in ners.items():
             keywords.append(k)
@@ -89,7 +89,7 @@ class NlpLtp():
         ners = self.recognizer.recognize(wordlist, postags)
         for i in range(0,len(ners)):
             #print( wordlist[i], postags[i], ners[i] )
-            if postags[i] in NOUN_LIST:
+            if postags[i] in NOUN_LIST:  
                 word = wordlist[i].strip()
                 if len(word)>1:
                     self.add_entity(word, postags[i])

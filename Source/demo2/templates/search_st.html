@@ -1,0 +1,109 @@
+{% extends "base.html" %} {% block mainbody %}
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+    <meta charset="utf-8" />
+
+    <script src="/static/js/echarts.js"></script>
+{#    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts-all-3.js"></script>#}
+<style>
+    .st_li{
+        border: 1px solid black;
+        height: 50px;
+        margin-top: 5px;
+        margin-left: 1px;
+        line-height: 50px;
+
+    }
+    .st_li span{
+        margin-left: 80px;
+    }
+</style>
+</head>
+
+<title>实体</title>
+<div class="container">
+    <div class="row">
+    <!--head start-->
+    <div class="col-md-12">
+        <h3 class="page-header"><i class="fa fa-share-alt" aria-hidden="true"></i> 实体查询 </h3>
+            <ol class="breadcrumb">
+                <li><i class="fa fa-home"></i><a href="\">Home</a></li>
+                <li><i class="fa fa-share-alt" aria-hidden="true"></i>实体查询</li>
+            </ol>
+    </div>
+    <div class = "col-md-12">
+        <div class="panel panel-default ">
+            <header class = "panel-heading">
+                查询条件：
+            </header>
+            <div class = "panel-body">
+                <!--搜索框-->
+
+                    <div >
+                        <div class="input-group">
+                            <input type="text" id = "user_text" name = "user_text" class="form-control" placeholder="输入实体名称" aria-describedby="basic-addon1">
+                            <span class="btn btn-primary input-group-addon" type="button" id="search_btn" style="background-color:#4592fe ; padding:6px 38px" >查询</span>
+                         </div>
+                    </div>
+
+            </div>
+        </div>
+
+    </div>
+    <p>
+        <div  id="search_res" class = "panel-body">
+{#            {% if ctx %}#}
+{#                <div class="panel panel-default">#}
+{#                    <header class ="panel-heading">#}
+{#                        <div class = "panel-body">#}
+{#                            <h2>数据库中暂未添加该实体</h2>#}
+{#                        </div>#}
+{#                    </header>#}
+{#                </div>#}
+{#            {% endif %}#}
+{#            <ul>#}
+{#                <li class="st_li" >实体名称：<a href="index.html">钟南山</a> <span>实体类别：人</span></li>#}
+{#                <li class="st_li" >csm</li>#}
+{#                <li class="st_li" >scamm</li>#}
+{#                <li class="st_li" >c,a, </li>#}
+{#                <li class="st_li">xm,a,</li>#}
+{#                <li class="st_li">cakmkx</li>#}
+{##}
+{#            </ul>#}
+
+        </div>
+    </p>
+
+    <script src="/static/js/jquery-1.8.3.min.js"></script>
+
+
+<script>
+
+        $("#search_btn").click(function () {
+
+            $.ajax({
+                url:"/search_st",
+                type:"GET",
+                data:"name="+$("#user_text").attr("value"),
+                success: function (xhr) {
+                    $("#search_res").empty().append(xhr.list_st)
+
+                }
+            })
+        });
+</script>
+
+
+
+
+
+</div>
+</div>
+
+
+
+
+
+{% endblock %}

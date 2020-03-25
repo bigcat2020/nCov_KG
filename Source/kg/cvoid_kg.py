@@ -526,6 +526,8 @@ class CKnowledgeGraph():
         txt = txt.replace('"',' ')
         txt = txt.replace('(','（')
         txt = txt.replace(')','）')
+        txt = txt.replace('“','（')
+        txt = txt.replace('”','）')
         return txt
 
     #保存到csv文件，逗号分隔，utf-8编码
@@ -550,7 +552,7 @@ class CKnowledgeGraph():
                     nodeclass = self.kgclass[cid].get_label_value()
                 propertytext = ''
                 for pid, val in node.propertydict.items():
-                    plabel = self.kgproperties[pid].get_label_value() + ': '
+                    plabel = self.kgproperties[pid].get_label_value() + ': “'#属性值用中文左右引号分隔
                     if type(val) is str:
                         val = [val]
                     typeid = self.check_str_type(pid)
@@ -564,7 +566,7 @@ class CKnowledgeGraph():
                             i += 1
                             if i<len(val):
                                 plabel +='、' #两个属性之间用中文顿号隔开
-                    propertytext += plabel + '；'
+                    propertytext += plabel + '”；'#属性值用中文左右引号分隔
                 nodename = self.clean_text( nodename )
                 #propertytext = self.clean_text( propertytext )
                 nodeclass = self.clean_text( nodeclass )
@@ -615,8 +617,8 @@ def load_nodes( csvfile ):
         with open('nodes.csv', 'w', encoding='utf8') as f:
             f.writelines(nodes)
 
-load_nodes('../../data/csv/nodes.csv')
-exit(0)
+#load_nodes('../../data/csv/nodes.csv')
+#exit(0)
 
 json_list=['character-covid-19-v0.21.json','event-covid-19-v0.2.json','medical-covid-19-v0.2.json']
 
@@ -630,8 +632,8 @@ for i in range(len(json_list)):
 
 #kgmng.list_class()
 #kgmng.list_properties()
-kgmng.list_nodes()
-kgmng.list_relations()
+#kgmng.list_nodes()
+#kgmng.list_relations()
 print( 'class numbers=', len(kgmng.kgclass))
 print( 'nodes numbers=', len(kgmng.kgnodes))
 print( 'properties numbers=', len(kgmng.kgproperties))

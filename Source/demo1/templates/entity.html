@@ -1,0 +1,79 @@
+{% extends "base.html" %} {% block mainbody %}
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+    <meta charset="utf-8" />
+    <script src="/static/js/echarts.js"></script>
+{#    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts-all-3.js"></script>#}
+</head>
+<title>实体</title>
+<div class="container">
+    <div class="row">
+    <!--head start-->
+    <div class="col-md-12">
+        <h3 class="page-header"><i class="fa fa-share-alt" aria-hidden="true"></i> 实体查询 </h3>
+            <ol class="breadcrumb">
+                <li><i class="fa fa-home"></i><a href="\">Home</a></li>
+                <li><i class="fa fa-share-alt" aria-hidden="true"></i>实体查询</li>
+            </ol>
+    </div>
+    <div class = "col-md-12">
+        <div class="panel panel-default ">
+            <header class = "panel-heading">
+                实体名称查询：
+            </header>
+            <div class = "panel-body">
+                <!--搜索框-->
+                <form method = "get" id = 'searchEntityForm'>
+                    <div >
+                        <div class="input-group">
+                            <input type="text" id = "user_text" name = "user_text" class="form-control" placeholder="输入实体名称" aria-describedby="basic-addon1" value={{ entity }}>
+                            
+                            <span class="btn btn-primary input-group-addon" type="button" id="relationSearchButton" style="background-color:#4592fe ; padding:6px 38px" onclick="document.getElementById('searchEntityForm').submit();">查询</span>
+                         </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        
+    </div>
+    <p>
+        <div class = "col-md-12">
+            {% if ctx %}
+                <div class="panel panel-default">
+                    <header class ="panel-heading">
+                        <div class = "panel-body">
+                            <h2>数据库中暂未添加该实体: "{{ entity }}"</h2>
+                        </div>
+                    </header>
+                </div>
+            {% endif %}
+        </div>
+    </p>
+{% if entityRelation %}
+        <div class = "col-md-12">
+            <div class="panel panel-default">
+            <header class="panel-heading">
+                {% if entity %}
+                以下是关于   <b>{{   entity   }}   </b>的信息:
+                {% endif %}
+            </header>
+                <div class = "panel-body">
+                <table border="1" cellpadding="10px">
+                    {% for i in entityRelation %}
+                            <tr>
+                                <td> {{ i }} </td>
+                            </tr>
+                    {% endfor %}
+                </table>
+                </div>
+            </div>
+        </div>
+{% endif %}
+</div>
+</div>
+
+
+{% endblock %}
