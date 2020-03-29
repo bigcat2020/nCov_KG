@@ -187,3 +187,58 @@ if True:
 
 elapsed = time.time() - start
 print('程序运行总耗时', elapsed)
+
+""" pyltp模型
+import os,sys
+from pyltp import SentenceSplitter,Segmentor,Postagger,Parser,NamedEntityRecognizer,SementicRoleLabeller
+ 
+LTP_DATA_DIR = r'./ltp_data_v3.4.0'   # LTP模型目录路径
+ 
+cws_model_path = os.path.join(LTP_DATA_DIR, 'cws.model')  # 分词模型路径， 模型名称为'cws.model'
+ 
+paragraph = '中国进出口银行与中国银行加强合作。中国进出口银行与中国银行加强合作！'
+ 
+sentence = SentenceSplitter.split(paragraph)[0]  # 分句并取第一句
+ 
+# 分词
+segmentor = Segmentor()   # 初始化
+segmentor.load(os.path.join(LTP_DATA_DIR, 'cws.model'))   # 加载模型
+words = segmentor.segment(sentence)  # 分词
+print(list(words))
+print('|'.join(words))
+ 
+# 词性标注
+postagger = Postagger()  # 初始化
+postagger.load(os.path.join(LTP_DATA_DIR, 'pos.model'))  # 加载模型
+postags = postagger.postag(words)
+#postags = postagger.postag(['中国', '进出口', '银行', '与', '中国银行', '加强', '合作', '。'])
+print(list(postags))
+ 
+# 依存句法分析
+parser = Parser()
+parser.load(os.path.join(LTP_DATA_DIR, 'parser.model'))
+arcs = parser.parse(words, postags)
+print('\t'.join('%d:%s' %(arc.head, arc.relation) for arc in arcs))
+ 
+ 
+# 命名实体识别
+recognizer = NamedEntityRecognizer()  # 实例化
+recognizer.load(os.path.join(LTP_DATA_DIR, 'ner.model'))
+netags = recognizer.recognize(words, postags)
+print(list(netags))
+ 
+ 
+# 语义角色标注
+labeller = SementicRoleLabeller()
+labeller.load(os.path.join(LTP_DATA_DIR, 'pisrl_win.model'))
+roles = labeller.label(words, postags, arcs)
+for role in roles:
+    print(role.index, "".join(
+            ["%s:(%d,%d)" % (arg.name, arg.range.start, arg.range.end) for arg in role.arguments]))
+ 
+segmentor.release()  # 释放
+postagger.release()
+parser.release()
+recognizer.release()
+labeller.release()
+"""

@@ -157,17 +157,11 @@
 
         ch.setOption(option_e586f0bd4a0843fa92b8cc6bc0aabc7d)
         }
-
-
-
             fp = $.ajax({
                 url:"/static/map_csv/china.csv",
                 async:false
             }).responseText;
-
             create_fun(fp.split("\n").slice(1));
-
-
     </script>
 
 {% endblock %}
