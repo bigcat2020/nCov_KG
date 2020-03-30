@@ -22,7 +22,7 @@ class KGQA_Parser():
         self.nodes = self.node_frame['nodename'].drop_duplicates() #去掉重复关系名
         self.relations = self.relation_frame['relation'].drop_duplicates() #去掉重复关系名
 
-    def _search_entity( self, words, sentence ):
+    def _search_entity( self, words, sentence ): #在句子中找到存在的实体和关系
         found = list()
         for n in self.nodes:
             if sentence.find(n)>=0:
@@ -47,7 +47,7 @@ class KGQA_Parser():
                     else:
                         scores[key] = 1
                 if key in scores and (len(found_node)>0 or len(found_rel)>0):
-                    scores[key] +=1
+                    scores[key] +=1 #如果句子中有现存的实体或者关系，是加分项
         #返回score中最大的key，就是问题最可能的类型
         #print(scores)
         max_score = 0

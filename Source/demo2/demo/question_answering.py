@@ -1,9 +1,11 @@
 # -*- coding:utf-8 -*-
 from django.shortcuts import render
-from toolkit.pre_load import pre_load_thu
 from toolkit.pre_load import neo_con
 import random
 import re
+import jieba
+import jieba.posseg as pg
+
 city_list = []
 
 with open('label_data/city_list.txt','r',encoding='utf8') as fr:
@@ -11,42 +13,8 @@ with open('label_data/city_list.txt','r',encoding='utf8') as fr:
 		city_list.append(city.strip())
 
 
-thu_lac = pre_load_thu
+#thu_lac = pre_load_thu
 db = neo_con
-
-#得到(address -(中文名) -> ?  )
-def get_chinese_name(address):
-	address_chinese_name = db.findOtherEntities(address,"中文名")
-	if(len(address_chinese_name) == 0):
-		return 0
-	else:
-		address_chinese_name = address_chinese_name[0]['n2']['title']
-		return address_chinese_name
-
-#得到(? <- (中文名) - address)
-def get_chinese_name2(address):
-	address_chinese_name = db.findOtherEntities2(address,"中文名")
-	if(len(address_chinese_name) == 0):
-		return 0
-	else:
-		address_chinese_name = address_chinese_name[0]['n1']['title']
-		return address_chinese_name
-
-#得到address具体的行政级别
-def get_xinghzhengjibie(address):
-	xingzhengjibie = db.findOtherEntities(address,"行政类别")
-	if(len(xingzhengjibie) > 0 ):
-		xingzhengjibie = xingzhengjibie[0]['n2']['title']
-		return xingzhengjibie
-
-	return 0
-
-#得到address的天气
-def get_city_weather(address):
-	weather = db.findOtherEntities(address,"气候")
-	if(len(weather) > 0):
-		return weather[0]['n2']['title']
-	return 0
 
 #找到对应天气适合种植的植物，随机取6个，如果植物里有科，那么找到这个科具体对应的植物，最多随机取6个,将答案和关系填在ret_dict中
 def get_weather_plant(weather,ret_dict):
@@ -106,43 +74,6 @@ def get_weather_plant(weather,ret_dict):
 				ret_dict['answer'].append(selected_plant)
 
 
-
-	return ret_dict
-
-#得到县、市辖区所属的市
-def get_shi_address(address):
-	upper_address = db.findOtherEntities(address,"located in the administrative territorial entity")
-	if(len(upper_address) == 0):
-		address = get_chinese_name(address)
-		upper_address = db.findOtherEntities(address,"located in the administrative territorial entity")
-		if(len(upper_address) ==0 ):
-			return 0
-	upper_address = upper_address[0]['n2']['title']
-	return upper_address
-
-#得到答案
-def get_shi_plant(address,ret_dict):
-	if (address in city_list):
-		# 查看weather
-		weather = get_city_weather(address)
-		if (weather != 0):
-			if(ret_dict.get('list') is None):
-				ret_dict['list'] = []
-			ret_dict['list'].append({'entity1': address, 'rel': '气候', 'entity2': weather,'entity1_type':'地点','entity2_type':'气候'})
-
-			# 得到当前weather适合种植的植物,随机6种,少于6种则全部输出
-			ret_dict = get_weather_plant(weather, ret_dict)
-
-	else:
-		address_chinese_name = get_chinese_name(address)
-		if (address_chinese_name in city_list):
-			weather = get_city_weather(address_chinese_name)
-			if (weather != 0):
-				if(ret_dict.get('list') is None):
-					ret_dict['list'] = []
-				ret_dict['list'].append({'entity1': address_chinese_name, 'rel': '气候', 'entity2': weather,'entity1_type':'地点','entity2_type':'气候'})
-
-				ret_dict = get_weather_plant(address_chinese_name, ret_dict)
 
 	return ret_dict
 
@@ -214,130 +145,10 @@ def get_xian_address(address):
 		return 0
 	return upper_address[0]['n1']['title']
 
-def get_nutrition(obj,ret_dict):
-	nutrition = db.findOtherEntities(obj,"营养成分")
-	if(len(nutrition) > 0 ):
-		#结果数大于6则随机取6个
-		if(len(nutrition) > 6):
-			selected_index = []
-			n = len(nutrition)
-			m  = 6
-			for i in range(n):
-				rand = random.randint(0, n - i - 1)
-				if(rand<m):
-					m -= 1
-					selected_index.append(i)
-		else:
-			selected_index  = [i for i in range(len(nutrition))]
-
-		for index in selected_index:
-			x = nutrition[index]['n2']['title']
-			if(ret_dict.get('list') is  None):
-				ret_dict['list'] = [{'entity1':obj,'rel':'含有','entity2':x,'entity1_type':'主语','entity2_type':'元素'}]
-			else:
-				ret_dict['list'].append({'entity1':obj,'rel':'含有','entity2':x,'entity1_type':'主语','entity2_type':'元素'})
-
-			if(ret_dict.get('answer') is None):
-				ret_dict['answer'] = [x]
-			else:
-				ret_dict['answer'].append(x)
-	return ret_dict
-
-def get_plant_knowledge(obj,ret_dict):
-	ke = db.findOtherEntities(obj,"科")
-	if(len(ke) > 0 ):
-		if(ret_dict.get('list') is None):
-			ret_dict['list'] = [{'entity1':obj,'rel':'科','entity2':ke[0]['n2']['title'],'entity1_type':'植物','entity2_type':'类型'}]
-		else:
-			ret_dict['list'].append({'entity1': obj, 'rel': '科', 'entity2': ke[0]['n2']['title'],'entity1_type':'植物','entity2_type':'类型'})
-		if(ret_dict.get('answer') is None):
-			ret_dict['answer'] = [ke[0]['n2']['title']]
-		else:
-			ret_dict['answer'].append(ke[0]['n2']['title'])
-
-	shu = db.findOtherEntities(obj,"属")
-	if(len(shu) > 0 ):
-		if(ret_dict.get('list') is None):
-			ret_dict['list'] = [{'entity1':obj,'rel':'属','entity2':shu[0]['n2']['title'],'entity1_type':'植物','entity2_type':'类型'}]
-		else:
-			ret_dict['list'].append({'entity1': obj, 'rel': '属', 'entity2': shu[0]['n2']['title'],'entity1_type':'植物','entity2_type':'类型'})
-		if (ret_dict.get('answer') is None):
-			ret_dict['answer'] = [shu[0]['n2']['title']]
-		else:
-			ret_dict['answer'].append(shu[0]['n2']['title'])
-
-	men = db.findOtherEntities(obj, "门")
-	if (len(men) > 0):
-		if (ret_dict.get('list') is None):
-			ret_dict['list'] = [{'entity1': obj, 'rel': '门', 'entity2': men[0]['n2']['title'], 'entity1_type': '植物',
-								 'entity2_type': '类型'}]
-		else:
-			ret_dict['list'].append({'entity1': obj, 'rel': '门', 'entity2': men[0]['n2']['title'], 'entity1_type': '植物',
-									 'entity2_type': '类型'})
-		if (ret_dict.get('answer') is None):
-			ret_dict['answer'] = [men[0]['n2']['title']]
-		else:
-			ret_dict['answer'].append(men[0]['n2']['title'])
-
-	gang = db.findOtherEntities(obj, "纲")
-	if (len(gang) > 0):
-		if (ret_dict.get('list') is None):
-			ret_dict['list'] = [{'entity1': obj, 'rel': '纲', 'entity2': gang[0]['n2']['title'], 'entity1_type': '植物',
-								 'entity2_type': '类型'}]
-		else:
-			ret_dict['list'].append({'entity1': obj, 'rel': '纲', 'entity2': gang[0]['n2']['title'], 'entity1_type': '植物',
-									 'entity2_type': '类型'})
-		if (ret_dict.get('answer') is None):
-			ret_dict['answer'] = [gang[0]['n2']['title']]
-		else:
-			ret_dict['answer'].append(gang[0]['n2']['title'])
-
-	mu = db.findOtherEntities(obj, "目")
-	if (len(mu) > 0):
-		if (ret_dict.get('list') is None):
-			ret_dict['list'] = [{'entity1': obj, 'rel': '目', 'entity2': mu[0]['n2']['title'], 'entity1_type': '植物',
-								 'entity2_type': '类型'}]
-		else:
-			ret_dict['list'].append({'entity1': obj, 'rel': '目', 'entity2': mu[0]['n2']['title'], 'entity1_type': '植物',
-									 'entity2_type': '类型'})
-		if (ret_dict.get('answer') is None):
-			ret_dict['answer'] = [mu[0]['n2']['title']]
-		else:
-			ret_dict['answer'].append(mu[0]['n2']['title'])
-
-	yamu = db.findOtherEntities(obj, "亚目")
-	if (len(yamu) > 0):
-		if (ret_dict.get('list') is None):
-			ret_dict['list'] = [{'entity1': obj, 'rel': '亚目', 'entity2': yamu[0]['n2']['title'], 'entity1_type': '植物',
-								 'entity2_type': '类型'}]
-		else:
-			ret_dict['list'].append({'entity1': obj, 'rel': '亚目', 'entity2': yamu[0]['n2']['title'], 'entity1_type': '植物',
-									 'entity2_type': '类型'})
-		if (ret_dict.get('answer') is None):
-			ret_dict['answer'] = [yamu[0]['n2']['title']]
-		else:
-			ret_dict['answer'].append(yamu[0]['n2']['title'])
-
-	yake = db.findOtherEntities(obj, "亚科")
-	if (len(yake) > 0):
-		if (ret_dict.get('list') is None):
-			ret_dict['list'] = [{'entity1': obj, 'rel': '亚科', 'entity2': yake[0]['n2']['title'], 'entity1_type': '植物',
-								 'entity2_type': '类型'}]
-		else:
-			ret_dict['list'].append(
-				{'entity1': obj, 'rel': '亚科', 'entity2': yake[0]['n2']['title'], 'entity1_type': '植物',
-				 'entity2_type': '类型'})
-		if (ret_dict.get('answer') is None):
-			ret_dict['answer'] = [yake[0]['n2']['title']]
-		else:
-			ret_dict['answer'].append(yake[0]['n2']['title'])
-
-	return ret_dict
-
-pattern = [[r"适合种什么",r"种什么好"],
-		   [r"气候是什么","气候类型是什么",r"属于哪种气候",r"是哪种气候",r"是什么天气",r"哪种天气",r"天气[\u4e00-\u9fa5]*"],
-		   [r"有哪些营养",r"有[\u4e00-\u9fa5]+成分",r"含[\u4e00-\u9fa5]+成分",r"含[\u4e00-\u9fa5]+元素",r"有[\u4e00-\u9fa5]+营养",r"有[\u4e00-\u9fa5]+元素"],
-		   [r"[\u4e00-\u9fa5]+植物学",r"[\u4e00-\u9fa5]+知识"]]
+#问答模板
+#1、xx[地区、国家、省市、机构、人]的[疫情、防疫、情况、简介、介绍]（例：广元的疫情情况如何？ 美国疫情情况如何？） 关键词：地名
+#2、新冠病毒（肺炎）的[来源、症状、预防、药物、治疗、防护]等？
+#3、其他（答复：暂无回答）
 
 def question_answering(request):  # index页面需要一开始就加载的内容写在这里
 	context = {'ctx':''}
