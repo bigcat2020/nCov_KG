@@ -548,6 +548,7 @@ class CKnowledgeGraph():
                 nodename = node.get_label_value()
                 cid = node.get_type()
                 nodeclass = '节点'
+                #print(id, node)
                 if cid in self.kgclass:
                     nodeclass = self.kgclass[cid].get_label_value()
                 propertytext = ''
@@ -620,7 +621,9 @@ def load_nodes( csvfile ):
 #load_nodes('../../data/csv/nodes.csv')
 #exit(0)
 
-json_list=['character-covid-19-v0.21.json','event-covid-19-v0.2.json','medical-covid-19-v0.2.json']
+#json_list=['character-covid-19-v0.21.json','event-covid-19-v0.2.json','medical-covid-19-v0.2.json']
+json_list=['virusnetwork.sars-cov-22.27.json','phylogeny.json']#,'openkg-covid-19-prevention-3-10.json']
+#json_list=['openkg-covid-19-prevention-3-10.json']
 
 PATH_NAME = '../../data/json/'
 
@@ -640,7 +643,8 @@ print( 'properties numbers=', len(kgmng.kgproperties))
 print( 'relations numbers=', len(kgmng.kgrelations))
     #kgmng.find_relation('钟南山')
     #kgmng.find_relation('李兰娟')
-kgmng.save_csv('../../data/csv/')
+#kgmng.save_csv('../../data/csv/')
+kgmng.save_csv('./csv_')
 kgmng.clear_all()
 
 print( 'Time cost=', time.time() - start)

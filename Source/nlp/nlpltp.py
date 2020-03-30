@@ -8,7 +8,6 @@ from pyltp import Postagger
 #from pyltp import SementicRoleLabeller
 from pyltp import NamedEntityRecognizer
     
-    
 LTP_DATA_DIR = '../../data/ltp_model'  # ltp模型目录的路径
 cws_model_path = os.path.join(LTP_DATA_DIR, 'cws.model')  # 分词模型路径，模型名称为`cws.model`
 pos_model_path = os.path.join(LTP_DATA_DIR, 'pos.model')  # 词性标注模型路径，模型名称为`pos.model`
@@ -74,13 +73,16 @@ class NlpLtp():
         for k, val in ners.items():
             keywords.append(k)
         return keywords
-            
+    
     def add_entity(self, word, tag):
         if word in self.nerdict:
-            count = self.nerdict[word][1]
+            pass
         else:
-            count = 0
-        self.nerdict[word] = [tag, count+1]
+            self.nerdict[word] = tag
+#            count = self.nerdict[word][1]
+#        else:
+#            count = 0
+#        self.nerdict[word] = [tag, count+1]
 
     #命名实体结果如下，ltp命名实体类型为：人名（Nh），地名（NS），机构名（Ni）；
     #ltp采用BIESO标注体系。
@@ -149,9 +151,22 @@ pltobj = NlpLtp()
 start = time.time()
 
 if True:
-    test_plt( pltobj, '塞内加尔出现首例输入性新冠肺炎患者，该病患是一名常住塞内加尔首都达喀尔市阿勒马蒂区的法国人。' )
+    import pandas as pd
+
+    web = pd.read_csv('../../data/web/四川教育网数据.csv')
+    web.info()
+    words = set()
+    for txt in web['title']:
+        words.update( pltobj.get_keywords(txt) )
+    #print( words )
+
+    for txt in web['content']:
+        words.update( pltobj.get_keywords(txt) )
+    #print( words )
+
+    #test_plt( pltobj, '塞内加尔出现首例输入性新冠肺炎患者，该病患是一名常住塞内加尔首都达喀尔市阿勒马蒂区的法国人。' )
     #test_plt( plt, '元芳你怎么看' )
-    test_plt( pltobj, '李兰娟院士赞扬陕西省援助湖北医疗队。' )
+    #test_plt( pltobj, '李兰娟院士赞扬陕西省援助湖北医疗队。' )
     #test_plt( plt, '据俄罗斯卫星通讯社3日消息，世卫组织在伊朗的一名工作人员被确诊感染新型冠状病毒，病情目前处于中等程度。')
 else:
     with open( 'd:\\report.txt', 'r', encoding='utf-8' ) as f:
@@ -161,14 +176,69 @@ else:
                 print( '处理句子:', ''.join(s) )
                 test_plt( plt, ''.join(s) )
 
-if False:
-    ners = plt.get_ner()
+if True:
+    #ners = plt.get_ner()
     with open( 'd:\\ners.txt', 'w', encoding='utf-8') as f:
         lines = list()
-        for k,v in ners.items():
-            line = k+','+v[0]+','+ str(v[1]) +'\n'
+        for w in words:
+            line = w + '\n'
             lines.append(line)
         f.writelines(lines)
 
 elapsed = time.time() - start
 print('程序运行总耗时', elapsed)
+
+""" pyltp模型
+import os,sys
+from pyltp import SentenceSplitter,Segmentor,Postagger,Parser,NamedEntityRecognizer,SementicRoleLabeller
+ 
+LTP_DATA_DIR = r'./ltp_data_v3.4.0'   # LTP模型目录路径
+ 
+cws_model_path = os.path.join(LTP_DATA_DIR, 'cws.model')  # 分词模型路径， 模型名称为'cws.model'
+ 
+paragraph = '中国进出口银行与中国银行加强合作。中国进出口银行与中国银行加强合作！'
+ 
+sentence = SentenceSplitter.split(paragraph)[0]  # 分句并取第一句
+ 
+# 分词
+segmentor = Segmentor()   # 初始化
+segmentor.load(os.path.join(LTP_DATA_DIR, 'cws.model'))   # 加载模型
+words = segmentor.segment(sentence)  # 分词
+print(list(words))
+print('|'.join(words))
+ 
+# 词性标注
+postagger = Postagger()  # 初始化
+postagger.load(os.path.join(LTP_DATA_DIR, 'pos.model'))  # 加载模型
+postags = postagger.postag(words)
+#postags = postagger.postag(['中国', '进出口', '银行', '与', '中国银行', '加强', '合作', '。'])
+print(list(postags))
+ 
+# 依存句法分析
+parser = Parser()
+parser.load(os.path.join(LTP_DATA_DIR, 'parser.model'))
+arcs = parser.parse(words, postags)
+print('\t'.join('%d:%s' %(arc.head, arc.relation) for arc in arcs))
+ 
+ 
+# 命名实体识别
+recognizer = NamedEntityRecognizer()  # 实例化
+recognizer.load(os.path.join(LTP_DATA_DIR, 'ner.model'))
+netags = recognizer.recognize(words, postags)
+print(list(netags))
+ 
+ 
+# 语义角色标注
+labeller = SementicRoleLabeller()
+labeller.load(os.path.join(LTP_DATA_DIR, 'pisrl_win.model'))
+roles = labeller.label(words, postags, arcs)
+for role in roles:
+    print(role.index, "".join(
+            ["%s:(%d,%d)" % (arg.name, arg.range.start, arg.range.end) for arg in role.arguments]))
+ 
+segmentor.release()  # 释放
+postagger.release()
+parser.release()
+recognizer.release()
+labeller.release()
+"""

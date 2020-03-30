@@ -75,6 +75,9 @@ class Spider:
         txt = txt.replace('"',' ')
         txt = txt.replace('(','（')
         txt = txt.replace(')','）')
+        txt = txt.replace('\n','')
+        txt = txt.replace('\t','')
+        txt = txt.replace('\r','')
         return txt
 
     def show_content(self):
@@ -84,16 +87,16 @@ class Spider:
         descript = self.clean_text(descript)
         ans = '"' + self.word + '",,"' + descript +'"'
         if len(self.content['information'])>0:
-            ans = ans + ',"'
-            prop = ''
+            ans = ans + ','
+            prop = '"'
             for key, value in self.content['information'].items():
                 key = self.clean_text(key)
                 value = self.clean_text(value)
-                prop = prop + key + '：' + value + '；'
-            prop = prop + ' "' 
-            ans = ans + prop + '\n'
+                prop += key + '：“' + value + '”；'
+            prop = prop + '"' 
+            ans = ans + prop
         else: #属性为空的情况
-            ans = ans+',\n'
+            ans = ans+','
         return ans
 
 class CtrlV:
@@ -106,31 +109,36 @@ class CtrlV:
     def get_list_word(self):
         with open(self.word_filename, "r", encoding="utf-8") as fp:
             return fp.read().split("\n")
+    
+    def line_to_csv(self, line):
+        line += '\n'
+        with open('./baike.csv', 'a', encoding='utf-8') as f:
+            f.write(line)
 
     def ctrl_v(self):
         list_word = self.get_list_word()
 
-        with open('./baike.csv', 'a', encoding="utf-8") as fp:
-            fp.write('nodename,nodeclass,describe,properties\n')
-            for word in list_word:
-                spider = Spider(word, ['医学', '症状'])
-                spider.run_spider()
-                content = spider.show_content()
+        self.line_to_csv('nodename,nodeclass,describe,properties')
+        for word in list_word:
+            spider = Spider(word, [])
+            spider.run_spider()
+            content = spider.show_content()
 
-                #if not spider.show_content():
-                if len(content)>2:
-                    fp.write(content)
-                    print("关键词-"+spider.word+"：爬取成功")
-                else:
-                    print("关键词-"+spider.word+"：没有爬取到内容")
+            #if not spider.show_content():
+            if len(content)>2:
+                self.line_to_csv(content)
+                #fp.write(content)
+                print("关键词-"+spider.word+"：爬取成功")
+            else:
+                print("关键词-"+spider.word+"：没有爬取到内容")
                 continue
 
     def run(self):
         self.ctrl_v()
 
-
 if __name__ == '__main__':
-    a = CtrlV("userdict.txt", "./select")
+    #a = CtrlV("../../../data/nodename.txt", "./select")
+    a = CtrlV("./userdict.txt", "./select")
     a.run()
 
 

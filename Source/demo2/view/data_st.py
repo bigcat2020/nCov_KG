@@ -11,18 +11,24 @@ def data_st(request):
         name = data['name']
         node_class = data['nodeclass']
         properties = data['properties'].split("”；")
-        ppts = {}
-        print(data['properties'])
-        print(properties)
-        for i in properties:
-            dt = i.split(": “")
-            print(dt)
-            if not dt[0]:
-                continue
-            print(dt)
-            ppts[dt[0]] = dt[1]
-            print(dt[0], dt[1])
-        print(ppts)
+        if len(properties)>1:
+            ppts = {}
+            print(data['properties'])
+            print(properties)
+            for i in properties:
+                dt = i.split(": “")
+                print(dt)
+                if not dt[0]:
+                    continue
+                print(dt)
+                if len(dt)>1:
+                    ppts[dt[0]] = dt[1]
+                    print(dt[0], dt[1])
+                else:
+                    ppts['简介']=dt[0]
+            print(ppts)
+        elif len(properties)==1:
+            ppts = {'简介':data['properties']}
 
         # ppts = {'name': "钟南山",
         #         '性别': "男",

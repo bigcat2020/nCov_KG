@@ -1,0 +1,18 @@
+#导入知识图谱
+LOAD CSV WITH HEADERS FROM 'file:///nodes.csv' AS line CREATE (n:term{nodeid:line.id, name:line.nodename, nodeclass:line.nodeclass, properties:line.propertytext})
+LOAD CSV WITH HEADERS FROM 'file:///relations.csv' AS line MATCH (n1:term{nodeid:line.node1}),(n2:term{nodeid:line.node2}) CREATE (n1)-[:rel{relation:line.relation}]->(n2)
+
+LOAD CSV WITH HEADERS FROM 'file:///baike.csv' AS line MATCH(n:term{name:line.nodename}) SET n.properties=line.properties, n.nodeclass=line.nodeclass, n.description=line.describe
+
+#删除知识图谱
+MATCH (:term)-[r:rel]-(:term) delete r
+MATCH (n:term) delete n
+
+
+#查询
+#涉及的nodeclass或者relation
+#人物、病毒、学校、战役、事件、城市、机构、领域、事迹、履历、职务、成果、奖项、言论、发布、书籍、文章、期刊、救援队
+#新型冠状病毒事件、国家政策事件、事件、公共卫生事件、新型冠状病毒事件、网站、报刊、媒体
+#病毒、中药材、症状、方剂、指标项、常规、医疗设备、药品、不良反应、传播途径、经络、人群、属、医疗科目、防护方式、器官、功效、使用方法、检查项目、测量设备、功效类别、病例、临床分型、流行病学史
+
+match (n1:term{name:'钟南山'}),(n2:term{nodeclass:'著作'}),p=SHORTESTPATH((n1)-[r:rel*]-(n2)) return p
