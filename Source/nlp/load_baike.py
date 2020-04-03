@@ -8,12 +8,7 @@ WORD_TYPE=['人物','省','国家','机构']
 g_nodedict = dict() #实体字典
 g_relationdict = dict() #关系字典
 
-INPUT_NODE_FILE = '../../data/csv/nodes.csv'
-INPUT_RELATION_FILE = '../../data/csv/relations.csv'
-INPUT_BAIKE_FILE = '../../data/csv/node_school_baike.csv'
-OUTPUT_NODE_FILE = '../../data/csv/out_nodes.csv'
-OUTPUT_RELATION_FILE = '../../data/csv/out_relations.csv'
-OUTPUT_SYNONYM_FILE = '../../data/csv/user_synonym.txt'
+
 SYNONYM_WORDS = ['别名','别称','简称','又称']
 #nr 人名
 #nr1 汉语姓氏
@@ -59,6 +54,13 @@ def guess_word_type(word,prop_dict):
 def clean_node(txt):
     txt = txt.replace('"','')
     txt = txt.strip()
+    return txt
+
+def clean_name(txt):
+    txt = txt.replace('"','')
+    txt = txt.replace('《','')
+    txt = txt.replace('》','')
+    txt = txt.replace(' ','')
     return txt
 
 class KGNode():
@@ -157,7 +159,7 @@ class KGManager():
             id = int(node_id[p+7:])
             if self.baike_id<id:
                 self.baike_id=id+1
-        node_name = clean_node(item[1])
+        node_name = clean_name(item[1])
         node_class = clean_node(item[2])
         node_desc = clean_node(item[3])
         prop_dict = dict()
@@ -178,13 +180,11 @@ class KGManager():
     def parse_baike(self, item):
         if len(item)<4:
             return None
-        node_name = clean_node(item[0])
+        node_name = clean_name(item[0])
         node_class = clean_node(item[1])
         node_desc = clean_node(item[2])
         node_prop = clean_node(item[3])
         prop_dict = self.parse_proptext(node_class,node_prop)
-        #print(node_class,node_prop)
-        #print(prop_dict)
         if node_class=='': 
             node_class = guess_word_type(node_name, prop_dict)
         if node_class=='': #如果没有类别名
@@ -192,7 +192,7 @@ class KGManager():
         return KGNode('', node_name, node_class, node_desc, prop_dict)
 
     def save_synonym_txt(self,synfile):
-        with open(synfile, 'w', encoding='utf8') as f:
+        with open(synfile, 'a', encoding='utf8') as f:
             for k,values in self.synonym_dict.items():
                 if len(values[0])<12: #文字太长的事件不保存
                     line = ','.join(values)
@@ -220,7 +220,7 @@ class KGManager():
             for rel in rows:
                 i+=1
                 if i>1:
-                    rel[0] = clean_node(rel[0])
+                    rel[0] = clean_name(rel[0])
                     rel[1] = clean_node(rel[1])
                     rel[2] = clean_node(rel[2])
                     relation = KGRelation(rel[0],rel[1],rel[2])
@@ -274,26 +274,77 @@ class KGManager():
                         continue
                     self.baike_dict[node.node_name] = node
                     self.add_baike_node(node)
-"""
-INPUT_NODE_FILE = '../../data/csv/nodes.csv'
-INPUT_RELATION_FILE = '../../data/csv/relations.csv'
-INPUT_BAIKE_FILE = '../../data/csv/node_school_baike.csv'
+                    self.update_synonym(node)
+    def save_node_relation_name( self, nodefile, relationfile ):
+        lines = []
+        with open(nodefile, 'w',encoding='utf8') as f:
+            for w, _ in self.node_dict.items():
+                lines.append(w+'\n')
+            f.writelines(lines)
+        lines = []
+        reldict = dict()
+        with open(relationfile, 'w',encoding='utf8') as f:
+            for _, rel in self.relation_dict.items():
+                if rel.relation in reldict:
+                    continue
+                else:
+                    reldict[rel.relation] = 1
+                    lines.append(rel.relation+'\n')
+            f.writelines(lines)
+
+    def _serach_property(self, node, propertyname):
+        #print(node)
+        #print(propertyname)
+        if propertyname in node.prop_dict:
+            return node.prop_dict[propertyname]
+        else:
+            for s, ls in self.synonym_dict.items():
+                for l in ls:
+                    if l in node.prop_dict:
+                        return node.prop_dict[l]
+        return ''
+
+    def search_node_property(self, nodename, propertyname):
+        if nodename in self.baike_dict:
+            node = self.baike_dict[nodename]
+            return self._serach_property(node, propertyname)
+        else:
+            for s, ls in self.synonym_dict.items():
+                if nodename in ls:
+                    for l in ls:
+                        if l in self.baike_dict:
+                            node = self.baike_dict[l]
+                            return self._serach_property(node, propertyname)
+        return ''
+
+INPUT_NODE_FILE = '../../data/csv/out_nodes.csv'
+INPUT_RELATION_FILE = '../../data/csv/out_relations.csv'
+INPUT_BAIKE_FILE = '../../data/csv/baike.csv'
 OUTPUT_NODE_FILE = '../../data/csv/out_nodes.csv'
 OUTPUT_RELATION_FILE = '../../data/csv/out_relations.csv'
 OUTPUT_SYNONYM_FILE = '../../data/csv/user_synonym.txt'
-"""
+OUTPUT_NODE_TXT = '../../data/csv/nodes.txt'
+OUTPUT_RELATION_TXT = '../../data/csv/relations.txt'
+OUTPUT_PROPERTY_FILE = '../../data/csv/property.txt'
 #print(len(synonym_dict))
 kg = KGManager()
 kg.load_node_csv(INPUT_NODE_FILE)
 kg.load_relation_csv(INPUT_RELATION_FILE)
 kg.load_baike_csv(INPUT_BAIKE_FILE)
-kg.parse_baike_relation()
-kg.save_node_csv(OUTPUT_NODE_FILE)
-kg.save_relation_csv(OUTPUT_RELATION_FILE)
-kg.save_synonym_txt(OUTPUT_SYNONYM_FILE)
-print(len(kg.node_dict))
-print(len(kg.baike_dict))
-print(len(kg.relation_dict))
-print(len(kg.synonym_dict))
+#kg.parse_baike_relation()
+#kg.save_node_property_csv(OUTPUT_PROPERTY_FILE)
+#kg.save_node_csv(OUTPUT_NODE_FILE)
+#kg.save_relation_csv(OUTPUT_RELATION_FILE)
+#kg.save_synonym_txt(OUTPUT_SYNONYM_FILE)
+#kg.save_node_relation_name(OUTPUT_NODE_TXT, OUTPUT_RELATION_TXT)
+#print(len(kg.node_dict))
+#print(len(kg.baike_dict))
+#print(len(kg.relation_dict))
+#print(len(kg.synonym_dict))
+print( kg.search_node_property('钟南山','性别') )
+print( kg.search_node_property('钟南山','民族') )
+print( kg.search_node_property('意大利','国庆日') )
+print( kg.search_node_property('美国','国庆日') )
+print( kg.search_node_property('西班牙','国庆日') )
 #ouput_synonyms(synonym_dict, './user_synonyms.txt')
 #ouput_nodes(node_dict, './baikenodes.csv')
