@@ -3,8 +3,7 @@ import requests
 from os.path import basename, isdir
 from os import mkdir
 from bs4 import BeautifulSoup
-
-
+import re
 class Spider:
     def __init__(self, word, list_polysemy_word=[],  **args):
         self.url = r'http://www.baike.com/wiki/'
@@ -33,6 +32,21 @@ class Spider:
         except:
             return None
 
+    def _parse_tag( self, tag ):
+        key = tag.select_one('strong')
+        if key is not None:
+            key = key.text
+        else:
+            return '',''
+        values=[]
+        while True:
+            spans = tag.select('span')
+            for v in spans:
+                values.append(v.text)
+            else:
+                break
+        return key, values
+
     def parse(self):
         soup = self.get_soup(self.url, self.word)
 
@@ -47,10 +61,18 @@ class Spider:
             for p in soup.select('#anchor>p'):
                 self.content['nr'] = self.content.get('nr') + p.text
 
+            for td_item in soup.select('#datamodule td'):
+                key, values = self._parse_tag( td_item )
+                if len(key)>0 and len(values)>0:
+                    self.content['information'][key] = values
+            """
             for td_key, td_value in zip(soup.select('#datamodule td strong'), soup.select('#datamodule td span')):
+                print(td_key.text)
+                print(td_value.text)
                 key = td_key.text[:len(td_key.text)-1]
                 value = td_value.text
                 self.content['information'][key] = value
+            """
 
     def qy_parse(self, list_qy):
         list_polysemy_word = self.list_polysemy_word  # 关键字匹配
@@ -91,8 +113,17 @@ class Spider:
             prop = '"'
             for key, value in self.content['information'].items():
                 key = self.clean_text(key)
-                value = self.clean_text(value)
-                prop += key + '：“' + value + '”；'
+                key = key.replace(' ','') #关键词要去掉空格
+                if key[-1]=='：' or key[-1]==':':
+                    key = key[:-1]
+                prop += key + '：“'
+                for i in range(len(value)):
+                    v = self.clean_text(value[i])
+                    if i<len(value)-1:
+                        prop += v + '、'
+                    else:
+                        prop += v
+                prop+='”；'
             prop = prop + '"' 
             ans = ans + prop
         else: #属性为空的情况
@@ -138,7 +169,7 @@ class CtrlV:
 
 if __name__ == '__main__':
     #a = CtrlV("../../../data/nodename.txt", "./select")
-    a = CtrlV("./userdict.txt", "./select")
+    a = CtrlV("./userdict1.txt", "./select")
     a.run()
 
 
