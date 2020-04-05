@@ -175,7 +175,7 @@ def test():
     print("Time usage:", time_dif)
 
 def predict( sess, x_test ):
-    """评估在某一数据上的准确率和损失"""
+    #完成预测
     feed_dict = {
         model.input_x: x_test,
         model.keep_prob: 1.0
@@ -195,14 +195,14 @@ def test_questions():
             return
         if len(question)==0:
             continue
-        if len(question)>32:
+        if len(question)>20:
             print('这个问题太长了，我搞不懂！')
             continue
         if question[-1]=='？' or question[-1]=='?':#去掉问号
             question = question[:-1]
         x_test = process_str( question, word_to_id, config.seq_length)
         result = predict( session, x_test )
-        print( '这个问题是：', result)
+        print( '问题分类：', result)
 
 if __name__ == '__main__':
     if len(sys.argv) != 2 or sys.argv[1] not in ['train', 'test']:
