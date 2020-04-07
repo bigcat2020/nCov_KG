@@ -155,7 +155,7 @@ def test_questions():
             return
         if len(question)==0:
             continue
-        if len(question)>32:
+        if len(question)>20:
             print('这个问题太长了，我搞不懂！')
             continue
         if question[-1]=='？' or question[-1]=='?':#去掉问号
