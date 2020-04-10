@@ -4,7 +4,6 @@ from modl.neo_models import neodb
 import json
 
 def search_st(request):
-
     if request.GET:
         name = request.GET['name']
         list_data = neodb.match_item_by_name(name, True)
@@ -27,7 +26,6 @@ def search_st(request):
                 'list_st': '<p style="font-size: 20px; ">抱歉，数据库中没有该实体</p>'
             }
             return HttpResponse(json.dumps(data), content_type='application/json')
-
 
 def search_relation(request):
     ctx = {}

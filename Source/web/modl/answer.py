@@ -140,10 +140,10 @@ class Answer:
                 if value:
                     ans.append(word+": "+value)
 
-        # if not ans:
-        #     res = self.get_node_text(zs_words[0])
-        #     if res:
-        #         ans.append("基本信息" + "：" + res)
+        if not ans:
+            res = self.get_node_text(zs_words[0])
+            if res:
+                ans.append("基本信息" + "：" + res)
 
         return ans
 

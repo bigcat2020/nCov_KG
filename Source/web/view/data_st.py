@@ -30,10 +30,4 @@ def data_st(request):
         elif len(properties)==1:
             ppts = {'简介':data['properties']}
 
-        # ppts = {'name': "钟南山",
-        #         '性别': "男",
-        #         '籍贯': '福建厦门',
-        #         '参与事件': '2020年1月18日，钟南山从广州赶往武汉。、2020年1月20日晚，钟南山院士接受了白岩松采访，提出“它是肯定有人传人的”，拉响全国防控警报。'
-        #      }
-
         return render(request, 'data_st.html', {'name': name, 'node_class': node_class, 'properties': ppts})
