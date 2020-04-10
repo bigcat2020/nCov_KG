@@ -166,7 +166,7 @@ class CtrlV:
 
 if __name__ == '__main__':
     #a = CtrlV("../../../data/nodename.txt", "./select")
-    a = CtrlV("./userdict1.txt", "./select")
+    a = CtrlV("./userdict.txt", "./select")
     a.run()
 
 
