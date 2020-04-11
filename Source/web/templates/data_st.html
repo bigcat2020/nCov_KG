@@ -4,17 +4,14 @@
     <style>
         .jd{
             width:100%;
-            height:100%;
+            height:120%;
             background-color:white;
-            overflow-y:scroll;
-            overflow-x:scroll;
-            border:1px solid black;
+            border:1px solid white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 3px 1px #949494;
         }
-        td{
-            width: 100%;
-            border-top:1px solid black;
 
-        }
     </style>
 </head>
 
@@ -25,7 +22,7 @@
             <!--overview start-->
             <div class="row">
                 <div class="col-md-12">
-                    <h3 class="page-header"><i class="fa fa-search"></i> 实体识别 </h3>
+                    <h3 class="page-header"><i class="fa fa-search"></i> 实体查询 </h3>
                     <ol class="breadcrumb">
                         <li><i class="fa fa-home"></i><a href="\">Home</a></li>
                         <li><i class="fa fa-search"></i>实体百科</li>
@@ -35,11 +32,12 @@
 
             <div class="jd">
                 <h3>实体名称：{{ name }}</h3>
-                <h5>实体类别：{{ node_class }}</h5>
-                <p>基本信息：</p>
+                <hr>
+                <h4>实体类别：{{ node_class }}</h4>
+                <h4>基本信息：</h4>
                 <table>
                     {% for key, value in properties.items %}
-                        <tr><td>{{ key }}： {{ value }}</td></tr>
+                        <tr><td style="width: 8%">{{ key }}  </td><td style="width: 92%"> {{ value }}</td></tr>
                     {% endfor %}
                 </table>
             </div>
