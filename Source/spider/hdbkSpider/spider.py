@@ -37,14 +37,11 @@ class Spider:
         if key is not None:
             key = key.text
         else:
-            return '',''
+            return '',[]
         values=[]
-        while True:
-            spans = tag.select('span')
-            for v in spans:
-                values.append(v.text)
-            else:
-                break
+        spans = tag.select('span')
+        for v in spans:
+            values.append(v.text)
         return key, values
 
     def parse(self):

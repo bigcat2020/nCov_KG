@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <title>雪花飘落</title>
+ </head>
+
+ <style type="text/css">
+
+
+     #a{
+         width: 100%;
+         height: 1000px;
+         background: url("QQ图片20200329192827.png");
+         background-size: 100% 100%;
+     }
+ </style>
+
+ <body>
+
+ </body>
+ <div id="a">
+
+ </div>
+
+  <script src="../static/js/jquery-3.4.1.js"></script>
+
+ <script type="text/javascript">
+     //position:"absolute"   ❉  setInterval定时器
+
+    xf = $("<div></div>").css({
+        "position": "absolute",
+        "top": "0px",
+        "color": "#DED6D6"
+    }).html("*");
+
+
+
+    function f() {
+
+        inleft = Math.random()*$("#a").width()+"px";
+        outleft = Math.random()*$("#a").width()+"px";
+        outtop = 400+Math.random()*251+"px";
+
+        xfc = xf.clone();
+
+        $("#a").append(xfc);
+
+       xfc.css({
+           "left": inleft,
+           "font-size": "30px"
+       }).animate({
+               "left": outleft,
+                "top": outtop,
+           }, 5000,
+       function f1() {
+           this.remove();
+       })
+
+    }
+
+
+    setInterval(f, 200);
+ </script>
+</html>
