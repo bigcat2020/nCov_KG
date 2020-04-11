@@ -8,7 +8,7 @@ import modl.China_world_data
 from view import index, nlp, search, map, data_st, answering
 
 urlpatterns = [
-    url(r'^$', index.index),
+    url(r'^$', search.search_relation),
     url(r'^data_st', data_st.data_st),
     # url(r'^tagging_data', tagging_data_view.showtagging_data),
     # url(r'^tagging-get', tagging_data_writefile_view.tagging_push),
