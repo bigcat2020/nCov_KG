@@ -2,7 +2,7 @@ import jieba
 import jieba.posseg
 from modl.neo_models import neodb
 import pandas as np
-
+from modl.cilin import CiLin
 
 class Answer:
     def __init__(self):
@@ -10,10 +10,18 @@ class Answer:
         list_word = ["新冠肺炎", "确诊人数", "死亡人数", "治愈人数", "疫情", "防疫措施", "武汉肺炎"]  # 添加某些必要的词
         self.add_words(list_word)
 
-        self.zs_words = set(np.read_csv("static/data_csv/out_nodes.csv")['nodename'])  # 获取数据库实体名列表
-        self.add_words(self.zs_words)  # 添加数据库的的实体名词
+        self.cilin = CiLin() #词林类，用来搜索近义词
+        synset = set()
+        for w, sset in self.cilin.synonymdict.items():
+            synset.update(sset)
+        
+        self.add_words(synset)
 
-        cs = np.read_csv("static/data_csv/out_nodes.csv")['propertytext']
+        print('Loading database for nodes and properties...')
+        self.zs_words = set(np.read_csv("static/data/out_nodes.csv")['nodename'])  # 获取数据库实体名列表
+        #self.add_words(self.zs_words)  # 添加数据库的的实体名词
+
+        cs = np.read_csv("static/data/out_nodes.csv")['propertytext']
         attributes = []
         for i in cs:
             try:
@@ -30,8 +38,13 @@ class Answer:
         self.key_words = ["确诊人数", "死亡人数", "治愈人数", "疫情", "防疫措施"]  # 疫情关键词列表
 
     def add_words(self, list_word):  # 添加词
-        for word in list_word:
-            jieba.add_word(word)
+        if type(list_word) is str:
+            if len(list_word)<12:
+                jieba.add_word(list_word,len(list_word)*100) #词频
+        else:
+            for word in list_word:
+                if len(word)<12:
+                    jieba.add_word(word,len(word)*100) #词频
 
     def get_key_words(self, txt):  # 提取文本中的疫情 关系 关键词
         words = []
@@ -46,10 +59,15 @@ class Answer:
         for w in jieba.cut(txt):
             if w in self.zs_words:
                 words.append(w)
+        
+        if len(words)==0: #正向搜索失败，再开始反响搜索
+            for w in self.zs_words:
+                if w in txt:
+                    words.append(w)
 
         return words
 
-    def get_dm(self, text):  # 提取文本中的 地 名
+    def get_dm(self, text):  # 提取文本中的 地名
         city = ""
         for key, tag in jieba.posseg.cut(text):
             if tag == 'ns' or tag == 'nz' or tag == 'nt':
@@ -62,6 +80,11 @@ class Answer:
         for word in jieba.cut(text):
             if word in self.attributes:
                 words.append(word)
+
+        if len(words)==0: #正向搜索失败，再开始反响搜索
+            for w in self.attributes:
+                if w in txt:
+                    words.append(w)
 
         return words
 
@@ -101,21 +124,19 @@ class Answer:
     def yq_answer(self, text):  # 类型为疫情的操作
         words = self.get_key_words(text)
         ans = []
+        num_dict = {
+            1:['确诊人数','确诊病例','累计确诊','确诊数','确诊总数'],
+            2:['治愈人数','出院人数','治愈病例','累计治愈','累计出院','出院病例','治愈数','出院数'],
+            3:['死亡人数','死亡病例','死亡数','累计死亡'],
+        }
 
-        if "确诊人数" in words:
-            city = self.get_dm(text)
-            num = self.get_num(city, 1)
-            ans.append("确诊人数:"+str(num))
-
-        if "治愈人数" in words:
-            city = self.get_dm(text)
-            num = self.get_num(city, 2)
-            ans.append("治愈人数:"+str(num))
-
-        if "死亡人数" in words:
-            city = self.get_dm(text)
-            num = self.get_num(city, 3)
-            ans.append("死亡人数:"+str(num))
+        for key,words in num_dict.items():
+            for w in words:
+                if w in text:
+                    city = self.get_dm(text)
+                    num = self.get_num(city, key)
+                    ans.append(words[0]+str(num))
+                    break
 
         try:
             cypher = self.yq_cypher(text)
@@ -177,7 +198,6 @@ class Answer:
 
 
 answer = Answer()
-
 
 
 

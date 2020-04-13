@@ -1,9 +1,9 @@
 from modl.neo_models import KGneo4j
-from modl.nlpltp import NlpLtp
+#from modl.nlpltp import NlpLtp
 import pandas as pd
 
 
-LTP_DATA_DIR = '../../data/ltp_model'  # ltp模型目录的路径
+#LTP_DATA_DIR = '../../data/ltp_model'  # ltp模型目录的路径
 
 class KGQA_Parser():
     QUESTION_KEY_WORDS = { #根据关键词来对问题分类 #'如何','怎么','怎样','情况',

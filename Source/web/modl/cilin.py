@@ -24,7 +24,7 @@ class CiLin():
         self.synonymdict = dict()
         self.mydict = {}
         self.read_cilin()
-        self._load_user_synonym('./user_synonyms.txt')
+        self._load_user_synonym('modl/user_synonyms.txt') #加载用户同义词典
 
     def read_cilin(self):
         """
@@ -33,8 +33,7 @@ class CiLin():
         所有单词保存在self.vocab
         """
         head = set()
-        i=0
-        with open('./new_cilin_utf8.txt', 'r', encoding='utf-8') as f:
+        with open('modl/new_cilin_utf8.txt', 'r', encoding='utf-8') as f:
             for line in f.readlines():
                 res = line.split()
                 code = res[0]  # 词义编码
@@ -54,7 +53,7 @@ class CiLin():
                 head.update(fathers)
             fatherlist = sorted(list(head))
 
-        with open('./new_cilin_utf8.txt', 'r', encoding='utf-8') as f:
+        with open('modl/new_cilin_utf8.txt', 'r', encoding='utf-8') as f:
             # 第二次遍历：得到大中小类的数量。更新到字典mydict里面。
             for ele in fatherlist:
                 self.mydict[ele] = 0
@@ -122,7 +121,8 @@ class CiLin():
 
     def get_synonym(self, word):
         #查找一个词语的同义词
-        user_syn = set(self._get_user_synonym(word))
+        user_syn = set()
+        user_syn.update(self._get_user_synonym(word))
         if len(user_syn)>0:
             return user_syn
         cilin_syn = list()
@@ -158,7 +158,7 @@ class CiLin():
             return  (sum(simlist) - max(simlist)) / (len(simlist) - 1)
         else:
             return min(simlist)
-
+"""
 cilin = CiLin()
 #print(len(cilin.vocab))
 print(cilin.get_sim2018('发布','发表'))
@@ -169,6 +169,5 @@ print(cilin.get_sim2018('美国','日本'))
 #print(cilin.get_synonym('感染'))
 print(cilin.get_synonym('传染'))
 print(cilin.get_synonym('武汉'))
-print(cilin.get_synonym('新冠肺炎'))
-print(cilin.get_synonym('新冠病毒'))
 print(cilin.get_synonym('四川信息职业技术学院'))
+"""

@@ -621,8 +621,8 @@ def load_nodes( csvfile ):
 #load_nodes('../../data/csv/nodes.csv')
 #exit(0)
 
-#json_list=['character-covid-19-v0.21.json','event-covid-19-v0.2.json','medical-covid-19-v0.2.json']
-json_list=['virusnetwork.sars-cov-22.27.json','phylogeny.json']#,'openkg-covid-19-prevention-3-10.json']
+json_list=['character-covid-19-v0.21.json','event-covid-19-v0.2.json','medical-covid-19-v0.2.json']
+#json_list=['virusnetwork.sars-cov-22.27.json','phylogeny.json']#,'openkg-covid-19-prevention-3-10.json']
 #json_list=['openkg-covid-19-prevention-3-10.json']
 
 PATH_NAME = '../../data/json/'

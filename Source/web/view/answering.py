@@ -1,6 +1,6 @@
 from django.shortcuts import HttpResponse, render
 #from modl.kgqa import parser
-from modl.nlpltp import pltobj
+#from modl.nlpltp import pltobj
 from modl.answer import answer
 from modl.classify import QuestionClassify
 

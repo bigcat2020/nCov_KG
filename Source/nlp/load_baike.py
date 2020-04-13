@@ -3,6 +3,7 @@ import re
 import os
 import jieba
 import jieba.posseg as pseg
+from hdbk_spider import BaikeSpider
 
 WORD_TYPE=['人物','省','国家','机构']
 g_nodedict = dict() #实体字典
@@ -31,7 +32,7 @@ def get_region_type(word):
     elif zt=='旗':
         return '旗'
     else:
-        return '国家'
+        return '未知'
 
 def guess_word_type(word,prop_dict):
     wpos =pseg.cut( word )
@@ -182,13 +183,15 @@ class KGManager():
             return None
         node_name = clean_name(item[0])
         node_class = clean_node(item[1])
-        node_desc = clean_node(item[2])
+        node_desc = '简介：“'+clean_node(item[2])+'”；'
         node_prop = clean_node(item[3])
         prop_dict = self.parse_proptext(node_class,node_prop)
         if node_class=='': 
             node_class = guess_word_type(node_name, prop_dict)
         if node_class=='': #如果没有类别名
             print(node_name,' ！！！')
+        if len(node_prop)>2:
+            node_desc += node_prop
         return KGNode('', node_name, node_class, node_desc, prop_dict)
 
     def save_synonym_txt(self,synfile):
@@ -252,8 +255,12 @@ class KGManager():
                     self.add_baike_relation(rel)
 
     def parse_baike_relation(self):
+        i=0
         for word, node in self.node_dict.items():
             #print(node.prop_dict)
+            i+=1
+            if i%500==0:
+                print('Loading ',word,' ...')
             for key, value in node.prop_dict.items():
                 if not self.search_relation( key, node, value):
                     vals = jieba.cut(value) #结巴分词后查找
@@ -269,12 +276,15 @@ class KGManager():
                 i+=1
                 if i>1:
                     node = self.parse_baike(line)
+                    if node is None:
+                        continue
                     nn = node.node_name
-                    if nn[len(nn)-1:] in ['镇','旗','盟','县','区']: #为简化信息，只处理市以上的信息
+                    if nn[len(nn)-1:] in ['镇','乡','县','旗','盟'] or nn[len(nn)-2:] in ['街道']: #为简化信息，只处理市以上的信息
                         continue
                     self.baike_dict[node.node_name] = node
                     self.add_baike_node(node)
                     self.update_synonym(node)
+    
     def save_node_relation_name( self, nodefile, relationfile ):
         lines = []
         with open(nodefile, 'w',encoding='utf8') as f:
@@ -292,9 +302,18 @@ class KGManager():
                     lines.append(rel.relation+'\n')
             f.writelines(lines)
 
+    def save_node_property_csv( self, propfile ):
+        lines = list()
+        with open(propfile, 'w', encoding='utf8') as f:
+            for k,node in self.node_dict.items():
+                if len(node.prop_dict)>0:
+                    line = node.node_name
+                    for p,val in node.prop_dict.items():
+                        line += ',' + p
+                    lines.append(line+'\n')
+            f.writelines(lines)
+
     def _serach_property(self, node, propertyname):
-        #print(node)
-        #print(propertyname)
         if propertyname in node.prop_dict:
             return node.prop_dict[propertyname]
         else:
@@ -317,25 +336,27 @@ class KGManager():
                             return self._serach_property(node, propertyname)
         return ''
 
-INPUT_NODE_FILE = '../../data/csv/out_nodes.csv'
-INPUT_RELATION_FILE = '../../data/csv/out_relations.csv'
-INPUT_BAIKE_FILE = '../../data/csv/baike.csv'
-OUTPUT_NODE_FILE = '../../data/csv/out_nodes.csv'
-OUTPUT_RELATION_FILE = '../../data/csv/out_relations.csv'
-OUTPUT_SYNONYM_FILE = '../../data/csv/user_synonym.txt'
+#INPUT_NODE_FILE = '../../data/csv/out_nodes.csv'
+#INPUT_RELATION_FILE = '../../data/csv/out_relations.csv'
+INPUT_NODE_FILE = './csv_nodes.csv'
+INPUT_RELATION_FILE = './csv_relations.csv'
+INPUT_BAIKE_FILE = './baike1.csv'
+OUTPUT_NODE_FILE = './out_nodes.csv'
+OUTPUT_RELATION_FILE = './out_relations.csv'
+OUTPUT_SYNONYM_FILE = './user_synonym.txt'
 OUTPUT_NODE_TXT = '../../data/csv/nodes.txt'
 OUTPUT_RELATION_TXT = '../../data/csv/relations.txt'
-OUTPUT_PROPERTY_FILE = '../../data/csv/property.txt'
+OUTPUT_PROPERTY_FILE = './property.txt'
 #print(len(synonym_dict))
 kg = KGManager()
 kg.load_node_csv(INPUT_NODE_FILE)
 kg.load_relation_csv(INPUT_RELATION_FILE)
 kg.load_baike_csv(INPUT_BAIKE_FILE)
-#kg.parse_baike_relation()
-#kg.save_node_property_csv(OUTPUT_PROPERTY_FILE)
-kg.save_node_csv(OUTPUT_NODE_FILE)
-kg.save_relation_csv(OUTPUT_RELATION_FILE)
-kg.save_synonym_txt(OUTPUT_SYNONYM_FILE)
+kg.parse_baike_relation()
+#kg.save_node_csv(OUTPUT_NODE_FILE)
+#kg.save_relation_csv(OUTPUT_RELATION_FILE)
+#kg.save_synonym_txt(OUTPUT_SYNONYM_FILE)
+kg.save_node_property_csv(OUTPUT_PROPERTY_FILE)
 #kg.save_node_relation_name(OUTPUT_NODE_TXT, OUTPUT_RELATION_TXT)
 #print(len(kg.node_dict))
 #print(len(kg.baike_dict))

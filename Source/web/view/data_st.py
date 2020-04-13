@@ -1,5 +1,4 @@
 from django.shortcuts import HttpResponse, render
-from modl.nlpltp import pltobj
 from modl.neo_models import neodb
 import json
 
