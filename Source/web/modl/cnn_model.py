@@ -1,9 +1,6 @@
 # coding: utf-8
 
 import tensorflow as tf
-from collections import Counter
-
-import numpy as np
 import tensorflow.keras as kr
 
 def process_str( txt, word_to_id, max_length=20):

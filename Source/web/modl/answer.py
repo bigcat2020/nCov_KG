@@ -2,7 +2,7 @@ import jieba
 import jieba.posseg
 from modl.neo_models import neodb
 import pandas as np
-from modl.cilin import CiLin
+
 
 class Answer:
     def __init__(self):
@@ -10,18 +10,10 @@ class Answer:
         list_word = ["新冠肺炎", "确诊人数", "死亡人数", "治愈人数", "疫情", "防疫措施", "武汉肺炎"]  # 添加某些必要的词
         self.add_words(list_word)
 
-        self.cilin = CiLin() #词林类，用来搜索近义词
-        synset = set()
-        for w, sset in self.cilin.synonymdict.items():
-            synset.update(sset)
-        
-        self.add_words(synset)
+        self.zs_words = set(np.read_csv("static/data_csv/out_nodes.csv")['nodename'])  # 获取数据库实体名列表
+        self.add_words(self.zs_words)  # 添加数据库的的实体名词
 
-        print('Loading database for nodes and properties...')
-        self.zs_words = set(np.read_csv("static/data/out_nodes.csv")['nodename'])  # 获取数据库实体名列表
-        #self.add_words(self.zs_words)  # 添加数据库的的实体名词
-
-        cs = np.read_csv("static/data/out_nodes.csv")['propertytext']
+        cs = np.read_csv("static/data_csv/out_nodes.csv")['propertytext']
         attributes = []
         for i in cs:
             try:
@@ -38,13 +30,8 @@ class Answer:
         self.key_words = ["确诊人数", "死亡人数", "治愈人数", "疫情", "防疫措施"]  # 疫情关键词列表
 
     def add_words(self, list_word):  # 添加词
-        if type(list_word) is str:
-            if len(list_word)<12:
-                jieba.add_word(list_word,len(list_word)*100) #词频
-        else:
-            for word in list_word:
-                if len(word)<12:
-                    jieba.add_word(word,len(word)*100) #词频
+        for word in list_word:
+            jieba.add_word(word)
 
     def get_key_words(self, txt):  # 提取文本中的疫情 关系 关键词
         words = []
@@ -59,15 +46,10 @@ class Answer:
         for w in jieba.cut(txt):
             if w in self.zs_words:
                 words.append(w)
-        
-        if len(words)==0: #正向搜索失败，再开始反响搜索
-            for w in self.zs_words:
-                if w in txt:
-                    words.append(w)
 
         return words
 
-    def get_dm(self, text):  # 提取文本中的 地名
+    def get_dm(self, text):  # 提取文本中的 地 名
         city = ""
         for key, tag in jieba.posseg.cut(text):
             if tag == 'ns' or tag == 'nz' or tag == 'nt':
@@ -80,11 +62,6 @@ class Answer:
         for word in jieba.cut(text):
             if word in self.attributes:
                 words.append(word)
-
-        if len(words)==0: #正向搜索失败，再开始反响搜索
-            for w in self.attributes:
-                if w in txt:
-                    words.append(w)
 
         return words
 
@@ -105,47 +82,75 @@ class Answer:
 
         return ""
 
-    def get_num(self, city, index):  # 获取city地区的确诊人数， index 1为确诊， 2为治愈， 3为死亡
+    def get_num(self, city, index):  # 获取city地区的确诊人数， index 1为确诊， 2为治愈， 3为死亡， 4 为全部的人数列表
+        key = ""
+        if index == 1:
+            key = "累计确诊"
+        elif index == 2:
+            key = "累计治愈"
+        elif index == 3:
+            key = "累计死亡"
+
         cs = np.read_csv("static/map_csv/china.csv")
-        for i in cs.values:
-            if i[0] == city:
-                return i[0+index]
+        for i in range(len(cs["省份"])):
+            if cs["省份"][i] == city:
+                if index != 4:
+                    return cs[key][i]
+                else:
+                    return [cs['累计确诊'][i], cs['累计治愈'][i], cs['累计死亡'][i]]
 
         cs = np.read_csv("static/map_csv/china_city.csv")
-        for i in cs.values:
-            if i[1] == city:
-                return i[1+index]
+        for i in range(len(cs["城市"])):
+            if cs["城市"][i] == city:
+                if index != 4:
+                    return cs[key][i]
+                else:
+                    return [cs['累计确诊'][i], cs['累计治愈'][i], cs['累计死亡'][i]]
 
         cs = np.read_csv("static/map_csv/world.csv")
-        for i in cs.values:
-            if i[0] == city:
-                return i[1+index]
+        for i in range(len(cs["名称"])):
+            if cs["名称"][i] == city:
+                if index != 4:
+                    return cs[key][i]
+                else:
+                    return [cs['累计确诊'][i], cs['累计治愈'][i], cs['累计死亡'][i]]
 
     def yq_answer(self, text):  # 类型为疫情的操作
         words = self.get_key_words(text)
         ans = []
-        num_dict = {
-            1:['确诊人数','确诊病例','累计确诊','确诊数','确诊总数'],
-            2:['治愈人数','出院人数','治愈病例','累计治愈','累计出院','出院病例','治愈数','出院数'],
-            3:['死亡人数','死亡病例','死亡数','累计死亡'],
-        }
+        print(words)
 
-        for key,words in num_dict.items():
-            for w in words:
-                if w in text:
-                    city = self.get_dm(text)
-                    num = self.get_num(city, key)
-                    ans.append(words[0]+str(num))
-                    break
+        if "确诊人数" in words:
+            city = self.get_dm(text)
+            num = self.get_num(city, 1)
+            ans.append("确诊人数:"+str(num))
+
+        if "治愈人数" in words:
+            city = self.get_dm(text)
+            num = self.get_num(city, 2)
+            ans.append("治愈人数:"+str(num))
+
+        if "死亡人数" in words:
+            city = self.get_dm(text)
+            num = self.get_num(city, 3)
+            ans.append("死亡人数:"+str(num))
+
+        if "疫情" in words:
+            city = self.get_dm(text)
+            nums = self.get_num(city, 4)
+            st = ["确诊人数:", "治愈人数:", "死亡人数:"]
+            res = ""
+            for s, num in zip(st, nums):
+                res = res+s+str(num)+"  "
+            if res:
+                ans.append(city+"的疫情情况："+res)
 
         try:
             cypher = self.yq_cypher(text)
-            print(cypher)
             data = neodb.graph.run(cypher).data()
-
             for i in data:
                 ans.append(i['n2']['name']+":"+data[0]['n2']['properties'])
-        except:
+        except :
             pass
 
         return ans
@@ -175,7 +180,7 @@ class Answer:
         wh = "["
         if "疫情" in words:
             a = ""
-            if len(wh)==1:
+            if len(wh) == 1:
                 a = "\"疫情\""
             else:
                 a = ",\"疫情\""
@@ -198,6 +203,7 @@ class Answer:
 
 
 answer = Answer()
+
 
 
 

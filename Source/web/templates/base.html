@@ -36,17 +36,34 @@
 
 </head>
 
+<style>
+    #xh{
+        background-image: url("static/img/xiaohui.png");
+        background-size: 100% 100%;
+        width: 50px;
+        height: 50px;
+        border-radius: 25px;
+        position: absolute;
+        top: 1px;
+    }
+</style>
+
 <body>
+
     <section id="container" class="">
         <header class="header dark-bg">
             <div class="toggle-nav">
-                <div class="icon-reorder tooltips" data-original-title="隐藏/显示侧栏" data-placement="bottom">
-                    <i class="fa fa-bars" aria-hidden="true"></i>
+                <div  class="icon-reorder tooltips" data-original-title="隐藏/显示侧栏" data-placement="bottom">
+                    <div  id="xh" ></div>
                 </div>
+
             </div>
 
+
+
             <!--logo start-->
-            <a href="/" class="logo"> <img src="/static/img/logo-mini.png" style="height:40px;margin-right: 10px"> 新冠疫情知识图谱 <span class="lite">demo</span></a>
+
+            <a href="/" class="logo" style="margin-left: 40px"> 新冠疫情知识图谱 <span class="lite">demo</span></a>
             <!--logo end-->
         </header>
         <!--header end-->
@@ -101,12 +118,13 @@
 
             </section>
         </section>
-        <!-- Footer -->
-	<footer style="text-align: center;">
+
+    <footer style="text-align: center;">
 		COPYRIGHT &copy; Apr-2020 SCITC. ALL REGHTS RESERVED.<br>
 		四川信息职业技术学院 版权所有
 	</footer>
     </section>
+
     <!-- javascripts -->
     <script src="/static/js/jquery-1.8.3.min.js"></script>
     <script src="/static/js/jquery-ui-1.10.4.min.js"></script>

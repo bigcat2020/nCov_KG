@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import os
-import sys
 
 import numpy as np
 import tensorflow as tf
@@ -35,13 +34,11 @@ class QuestionClassify():
         return words, word_to_id
 
     def get_question_type( self, question ):
-        if question[-1]=='？' or question[-1]=='?':#去掉问号
-            question = question[:-1]
-
         if len(question)>20:
             print('这个问题太长了，我搞不懂！')
             return -1
-
+        if question[-1]=='？' or question[-1]=='?':#去掉问号
+            question = question[:-1]
         x_test = process_str( question, self.word_to_id, self.config.seq_length)
         return self._predict( x_test )
 
