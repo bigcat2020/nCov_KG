@@ -40,7 +40,7 @@
                         <div class="form-row">
                             <div class="form-group col-md-12">
                             <p>
-                                热门搜索： <a href="#" onclick="$('#question').attr('value','新冠病毒来源？')"> 新冠病毒来源？</a> &nbsp;&nbsp;
+                                热门搜索： <a href="#" onclick="$('#question').attr('value','新冠病毒来源？')"> 美国的疫情？</a> &nbsp;&nbsp;
                                 <a href="#" onclick="$('#question').attr('value','疫情什么时候结束？')"> 疫情什么时候结束？</a> &nbsp;&nbsp;
                                 <a href="#" onclick="$('#question').attr('value','钟南山院士籍贯哪里？')"> 钟南山院士籍贯哪里？</a> &nbsp;&nbsp;
                             </p>
@@ -85,8 +85,9 @@
 
 {% if ret %}
 <script type="text/javascript">
+
     var ret_dict = {{ret|safe}} ;
-    console.log(ret_dict);
+
     //将所有的答案列在tableData中
     tableData = [];
     for(var i = 0 ;i< ret_dict['answer'].length;i++){
@@ -94,14 +95,15 @@
         answer['answer'] = ret_dict['answer'][i];
         tableData.push(answer)
     }
-    console.log(tableData);
 
-    jQuery(function () {
+    $(function () {
         $('.table').footable({
             "columns":[{"name":"answer",title:"答案"}],
             "rows": tableData
         });
     });
+
+
 </script>
 {% endif %}
 

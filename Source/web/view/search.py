@@ -2,11 +2,12 @@ from django.shortcuts import HttpResponse, render
 from modl.neo_models import neodb
 import json
 
+
 def search_st(request):
     if request.GET:
         name = request.GET['name']
         list_data = neodb.match_item_by_name(name, True)
-        if len(list_data)>0:
+        if len(list_data) > 0:
             ul = ""
             for i in list_data:
                 name = i['n']['name']
@@ -15,7 +16,7 @@ def search_st(request):
                 print(name, node_class, )
 
             ul = ul+""
-            print(ul)
+
             data = {
                 'list_st': ul,
             }
@@ -25,6 +26,7 @@ def search_st(request):
                 'list_st': '<p style="font-size: 20px; ">抱歉，数据库中没有该实体</p>'
             }
             return HttpResponse(json.dumps(data), content_type='application/json')
+
 
 def search_relation(request):
     ctx = {}
@@ -66,12 +68,12 @@ def search_relation(request):
                 return render(request, 'relation.html', {'searchResult': json.dumps(searchResult, ensure_ascii=False)})
 
         # 若输入entity1,entity2和relation,则输出entity1、entity2是否具有相应的关系
-        if (len(entity1) != 0 and len(entity2) != 0 and len(relation) != 0):
+        if len(entity1) != 0 and len(entity2) != 0 and len(relation) != 0:
             searchResult = db.find_entity_relation(entity1, relation, entity2)
             if len(searchResult) > 0:
                 return render(request, 'relation.html', {'searchResult': json.dumps(searchResult, ensure_ascii=False)})
         # 全为空
-        if (len(entity1) != 0 and len(relation) != 0 and len(entity2) != 0):
+        if len(entity1) != 0 and len(relation) != 0 and len(entity2) != 0:
             pass
 
         ctx = {'title': '<h1>暂未找到相应的匹配</h1>'}
