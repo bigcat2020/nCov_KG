@@ -1,9 +1,9 @@
 from modl.neo_models import KGneo4j
-from modl.nlpltp import NlpLtp
+#from modl.nlpltp import NlpLtp
 import pandas as pd
 
 
-LTP_DATA_DIR = '../../data/ltp_model'  # ltp模型目录的路径
+#LTP_DATA_DIR = '../../data/ltp_model'  # ltp模型目录的路径
 
 class KGQA_Parser():
     QUESTION_KEY_WORDS = { #根据关键词来对问题分类 #'如何','怎么','怎样','情况',
@@ -82,36 +82,3 @@ class KGQA_Parser():
             print(sql)
 
 parser = KGQA_Parser()
-if __name__ == '__main__':
-
-    question_samples=[ #    QUESTION_TYPE = {'疫情','实体','知识','未知'}
-        '广元的疫情情况如何？', #疫情
-        '美国疫情如何？', #疫情
-        '四川有哪些防控措施？', #疫情
-        '四川信息职业技术学院有哪些防控措施？', #疫情
-        '四川信息职业技术学院的防疫政策？', #疫情
-        '钟南山是谁？',  #实体
-        '美国是什么？',  #实体
-        '尼日利亚是哪里？', #实体
-        '新冠肺炎来源？',  #知识
-        '新冠肺炎是什么？',  #知识
-        '怎么预防新型冠状肺炎？', #知识
-        '哪些药物可以治新冠肺炎？', #知识
-        '新冠肺炎有特效药吗？', #知识
-        '新冠肺炎有什么药？', #知识
-        '新冠病毒有疫苗吗？', #知识
-    ]
-
-    parser = KGQA_Parser()
-    for q in question_samples:
-        qp = parser.parse_question(q)
-        print(qp)
-    while True:
-        question = input('请输入问题（exit结束）：')
-        if question == 'exit':
-            break
-        qp = parser.parse_question(question) #获取问题模板
-        print('问题类型是：', qp)
-        #get_KGQA_answer(get_target_array(question))
-        #answer = get_KGQA_answer(get_target_array(question))
-        #print(answer)
